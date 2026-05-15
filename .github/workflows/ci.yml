@@ -10,6 +10,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+  # Backend: Build & Test
   backend:
     name: Backend (Node/Express)
     runs-on: ubuntu-latest

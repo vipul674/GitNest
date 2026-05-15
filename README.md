@@ -56,7 +56,7 @@ Create repositories, browse code, manage issues, review pull requests, and colla
 | **Cache** | Redis |
 | **Real-time** | Socket.io |
 | **Auth** | JWT, bcrypt |
-| **Storage** | AWS S3 |
+| **Storage** | Cloudinary, Supabase |
 | **DevOps** | GitHub Actions |
 
 ---
@@ -81,7 +81,6 @@ gitnest/
 │   ├── routes/           # Express routers
 │   ├── services/         # Business logic, Socket.io
 │   └── utils/            # Logger, response helpers
-├── docker-compose.yml
 └── .github/              # Issue templates, workflows, PR template
 ```
 
@@ -155,7 +154,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for full details on the workflow, codin
 
 ## 🗺️ Roadmap
 
-- [x] Project scaffolding & Express server setup
+- [ ] Project scaffolding & Express server setup
 - [ ] MongoDB schemas & Mongoose models
 - [ ] Auth service (JWT + GitHub OAuth)
 - [ ] Repository CRUD & file browser
