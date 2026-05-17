@@ -101,6 +101,8 @@ Make sure you have the following installed:
 
 ### Installation
 
+⭐ Star The Repo
+
 **1. Fork and clone the repository**
 
 ```bash
@@ -136,6 +138,252 @@ cd frontend && npm install && npm run dev
 
 ---
 
+Proposed Frontend Structure to buid components
+```
+frontend/
+├── src/
+│   ├── app/
+│   │   ├── router/
+│   │   │   ├── AppRouter.jsx
+│   │   │   ├── ProtectedRoute.jsx
+│   │   │   └── GuestRoute.jsx
+│   │   │
+│   │   ├── layouts/
+│   │   │   ├── RootLayout.jsx
+│   │   │   ├── DashboardLayout.jsx
+│   │   │   ├── RepositoryLayout.jsx
+│   │   │   ├── AuthLayout.jsx
+│   │   │   └── SettingsLayout.jsx
+│   │   │
+│   │   └── providers/
+│   │       ├── ThemeProvider.jsx
+│   │       ├── QueryProvider.jsx
+│   │       ├── AuthProvider.jsx
+│   │       └── SocketProvider.jsx
+│   │
+│   ├── pages/
+│   │   ├── home/
+│   │   │   ├── HomePage.jsx
+│   │   │   ├── sections/
+│   │   │   │   ├── HeroSection.jsx
+│   │   │   │   ├── FeaturesSection.jsx
+│   │   │   │   ├── ExploreRepositories.jsx
+│   │   │   │   ├── OpenSourceBanner.jsx
+│   │   │   │   ├── CollaborationSection.jsx
+│   │   │   │   ├── GitnestWorkflow.jsx
+│   │   │   │   ├── TestimonialsSection.jsx
+│   │   │   │   ├── CTASection.jsx
+│   │   │   │   └── FooterSection.jsx
+│   │   │   │
+│   │   │   └── components/
+│   │   │       ├── RepoPreviewCard.jsx
+│   │   │       ├── FeatureCard.jsx
+│   │   │       ├── WorkflowCard.jsx
+│   │   │       └── StatCard.jsx
+│   │   │
+│   │   ├── auth/
+│   │   │   ├── LoginPage.jsx
+│   │   │   ├── RegisterPage.jsx
+│   │   │   ├── ForgotPasswordPage.jsx
+│   │   │   ├── ResetPasswordPage.jsx
+│   │   │   └── VerifyEmailPage.jsx
+│   │   │
+│   │   ├── dashboard/
+│   │   │   ├── DashboardPage.jsx
+│   │   │   ├── FeedPage.jsx
+│   │   │   ├── NotificationsPage.jsx
+│   │   │   ├── StarsPage.jsx
+│   │   │   └── FollowingPage.jsx
+│   │   │
+│   │   ├── profile/
+│   │   │   ├── ProfilePage.jsx
+│   │   │   ├── EditProfilePage.jsx
+│   │   │   ├── FollowersPage.jsx
+│   │   │   ├── FollowingPage.jsx
+│   │   │   ├── UserRepositoriesPage.jsx
+│   │   │   └── UserActivityPage.jsx
+│   │   │
+│   │   ├── repositories/
+│   │   │   ├── ExploreRepositoriesPage.jsx
+│   │   │   ├── CreateRepositoryPage.jsx
+│   │   │   ├── RepositoryPage.jsx
+│   │   │   ├── RepositorySettingsPage.jsx
+│   │   │   ├── RepositoryInsightsPage.jsx
+│   │   │   ├── ForksPage.jsx
+│   │   │   └── StarsPage.jsx
+│   │   │
+│   │   ├── code/
+│   │   │   ├── FileExplorerPage.jsx
+│   │   │   ├── BlobViewPage.jsx
+│   │   │   ├── CommitHistoryPage.jsx
+│   │   │   ├── BranchesPage.jsx
+│   │   │   ├── ReleasesPage.jsx
+│   │   │   └── CompareChangesPage.jsx
+│   │   │
+│   │   ├── issues/
+│   │   │   ├── IssuesPage.jsx
+│   │   │   ├── IssueDetailsPage.jsx
+│   │   │   ├── CreateIssuePage.jsx
+│   │   │   ├── LabelsPage.jsx
+│   │   │   └── MilestonesPage.jsx
+│   │   │
+│   │   ├── pull-requests/
+│   │   │   ├── PullRequestsPage.jsx
+│   │   │   ├── PullRequestDetailsPage.jsx
+│   │   │   ├── CreatePullRequestPage.jsx
+│   │   │   ├── ReviewChangesPage.jsx
+│   │   │   └── MergePreviewPage.jsx
+│   │   │
+│   │   ├── organizations/
+│   │   │   ├── OrganizationsPage.jsx
+│   │   │   ├── OrganizationProfilePage.jsx
+│   │   │   ├── OrganizationMembersPage.jsx
+│   │   │   └── OrganizationRepositoriesPage.jsx
+│   │   │
+│   │   ├── search/
+│   │   │   ├── SearchPage.jsx
+│   │   │   ├── SearchRepositories.jsx
+│   │   │   ├── SearchUsers.jsx
+│   │   │   └── SearchIssues.jsx
+│   │   │
+│   │   ├── settings/
+│   │   │   ├── AccountSettingsPage.jsx
+│   │   │   ├── AppearanceSettingsPage.jsx
+│   │   │   ├── SecuritySettingsPage.jsx
+│   │   │   ├── NotificationsSettingsPage.jsx
+│   │   │   └── SSHKeysPage.jsx
+│   │   │
+│   │   └── errors/
+│   │       ├── NotFoundPage.jsx
+│   │       ├── UnauthorizedPage.jsx
+│   │       └── ServerErrorPage.jsx
+│   │
+│   ├── components/
+│   │   ├── common/
+│   │   │   ├── Button.jsx
+│   │   │   ├── Input.jsx
+│   │   │   ├── Textarea.jsx
+│   │   │   ├── Modal.jsx
+│   │   │   ├── Dropdown.jsx
+│   │   │   ├── Avatar.jsx
+│   │   │   ├── Badge.jsx
+│   │   │   ├── Tooltip.jsx
+│   │   │   ├── Tabs.jsx
+│   │   │   ├── EmptyState.jsx
+│   │   │   ├── Loader.jsx
+│   │   │   ├── Pagination.jsx
+│   │   │   └── MarkdownRenderer.jsx
+│   │   │
+│   │   ├── navbar/
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── SearchBar.jsx
+│   │   │   ├── MobileMenu.jsx
+│   │   │   ├── UserMenu.jsx
+│   │   │   └── NotificationDropdown.jsx
+│   │   │
+│   │   ├── sidebar/
+│   │   │   ├── Sidebar.jsx
+│   │   │   ├── RepositorySidebar.jsx
+│   │   │   └── SettingsSidebar.jsx
+│   │   │
+│   │   ├── repository/
+│   │   │   ├── RepositoryHeader.jsx
+│   │   │   ├── RepositoryTabs.jsx
+│   │   │   ├── RepositoryStats.jsx
+│   │   │   ├── RepositoryCard.jsx
+│   │   │   ├── FileTree.jsx
+│   │   │   ├── CodeEditor.jsx
+│   │   │   ├── CommitCard.jsx
+│   │   │   └── BranchSelector.jsx
+│   │   │
+│   │   ├── issues/
+│   │   │   ├── IssueCard.jsx
+│   │   │   ├── IssueFilters.jsx
+│   │   │   ├── CommentBox.jsx
+│   │   │   └── LabelBadge.jsx
+│   │   │
+│   │   ├── pull-requests/
+│   │   │   ├── PullRequestCard.jsx
+│   │   │   ├── ReviewComment.jsx
+│   │   │   ├── ChangedFiles.jsx
+│   │   │   └── MergeBox.jsx
+│   │   │
+│   │   ├── profile/
+│   │   │   ├── ProfileHeader.jsx
+│   │   │   ├── ContributionGraph.jsx
+│   │   │   ├── ActivityTimeline.jsx
+│   │   │   └── PinnedRepositories.jsx
+│   │   │
+│   │   └── skeletons/
+│   │       ├── RepositorySkeleton.jsx
+│   │       ├── ProfileSkeleton.jsx
+│   │       └── IssueSkeleton.jsx
+│   │
+│   ├── hooks/
+│   │   ├── useAuth.js
+│   │   ├── useTheme.js
+│   │   ├── useDebounce.js
+│   │   ├── useRepositories.js
+│   │   ├── useIssues.js
+│   │   ├── usePullRequests.js
+│   │   └── useSocket.js
+│   │
+│   ├── services/
+│   │   ├── api/
+│   │   │   ├── axios.js
+│   │   │   ├── auth.api.js
+│   │   │   ├── repository.api.js
+│   │   │   ├── issue.api.js
+│   │   │   ├── pullRequest.api.js
+│   │   │   ├── profile.api.js
+│   │   │   └── notification.api.js
+│   │   │
+│   │   └── socket/
+│   │       └── socket.js
+│   │
+│   ├── store/
+│   │   ├── authStore.js
+│   │   ├── repositoryStore.js
+│   │   ├── issueStore.js
+│   │   ├── pullRequestStore.js
+│   │   └── uiStore.js
+│   │
+│   ├── context/
+│   │   ├── AuthContext.jsx
+│   │   ├── ThemeContext.jsx
+│   │   └── NotificationContext.jsx
+│   │
+│   ├── utils/
+│   │   ├── formatDate.js
+│   │   ├── formatNumber.js
+│   │   ├── generateSlug.js
+│   │   ├── parseMarkdown.js
+│   │   ├── constants.js
+│   │   └── validators.js
+│   │
+│   ├── styles/
+│   │   ├── globals.css
+│   │   ├── markdown.css
+│   │   └── animations.css
+│   │
+│   ├── data/
+│   │   ├── mockRepositories.js
+│   │   ├── mockUsers.js
+│   │   └── mockIssues.js
+│   │
+│   ├── config/
+│   │   ├── env.js
+│   │   ├── routes.js
+│   │   └── navigation.js
+│   │
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── index.css
+
+
+```
+
+---
 ## 🤝 Contributing
 
 We love contributions! GitNest is a **GSSoC 2026** project and welcomes developers of all experience levels.
