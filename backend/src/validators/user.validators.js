@@ -1,34 +1,43 @@
 import { body } from 'express-validator';
 
-/**
- * Update profile validation rules
- * Bio: max 500 characters
- * Location: max 100 characters
- * Website: valid URL format
- * AvatarUrl: valid URL format
- */
 export const updateProfileValidator = [
   body('bio')
     .optional()
     .trim()
-    .isLength({ max: 500 })
-    .withMessage('Bio must not exceed 500 characters'),
+    .isString().withMessage('Bio must be a string')
+    .isLength({ max: 200 }).withMessage('Bio must be at most 200 characters'),
 
   body('location')
     .optional()
     .trim()
-    .isLength({ max: 100 })
-    .withMessage('Location must not exceed 100 characters'),
+    .isString().withMessage('Location must be a string')
+    .isLength({ max: 100 }).withMessage('Location must be at most 100 characters'),
 
   body('website')
     .optional()
     .trim()
-    .isURL()
-    .withMessage('Website must be a valid URL'),
+    .custom((val) => {
+      if (val === '') return true;
+      try {
+        const { protocol } = new URL(val);
+        return protocol === 'http:' || protocol === 'https:';
+      } catch {
+        return false;
+      }
+    })
+    .withMessage('Website must be a valid http or https URL'),
 
   body('avatarUrl')
     .optional()
     .trim()
-    .isURL()
-    .withMessage('Avatar URL must be a valid URL'),
+    .custom((val) => {
+      if (val === '') return true;
+      try {
+        const { protocol } = new URL(val);
+        return protocol === 'http:' || protocol === 'https:';
+      } catch {
+        return false;
+      }
+    })
+    .withMessage('Avatar URL must be a valid http or https URL'),
 ];
