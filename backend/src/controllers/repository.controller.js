@@ -1,5 +1,4 @@
 import Repository from '../models/Repository.model.js';
-import User from '../models/User.model.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import AppError from '../utils/AppError.js';
 import { sendSuccess } from '../utils/responseHandlers.js';
@@ -50,15 +49,10 @@ export const createRepository = asyncHandler(async (req, res, next)=> {
     sendSuccess(res, 201, repository, 'Repository created successfully');
 });
 
-export const getRepository = asyncHandler(async (req, res, next) => {
+export const getRepository = asyncHandler(async (req, resizeBy, next) => {
     const { username, reponame } = req.params;
 
-    const owner = await User.findOne({ username: username.toLowerCase() });
-    if (!owner) {
-        return next(new AppError('Repository not found', 404));
-    }
-
-    const repository = await Repository.findOne({ name: reponame, owner: owner._id })
+    const repository = await Repository.findOne({ name: reponame})
     .populate('owner', 'username avatarUrl bio');
 
     if(!repository) {
@@ -72,7 +66,7 @@ export const getRepository = asyncHandler(async (req, res, next) => {
         return next(new AppError('Repository not found', 404));
     }
 
-    sendSuccess(res, 200, repository);
+    sendSuccess(resizeBy, 200, repository);
 });
 
 export const getUserRepositories = asyncHandler(async (req, res, next) => {
@@ -98,11 +92,6 @@ export const getUserRepositories = asyncHandler(async (req, res, next) => {
 export const updateRepository = asyncHandler(async(req, res, next) => {
     const { username, reponame } = req.params;
 
-    const owner = await User.findOne({ username: username.toLowerCase() });
-    if (!owner || owner._id.toString() !== req.user.id) {
-        return next(new AppError('Repository not found or unauthorized', 404));
-    }
-
     const repository = await Repository.findOne({
         name: reponame,
         owner: req.user.id,
@@ -127,12 +116,7 @@ export const updateRepository = asyncHandler(async(req, res, next) => {
 });
 
 export const deleteRepository = asyncHandler(async (req, res, next) => {
-    const { username, reponame } = req.params;
-
-    const owner = await User.findOne({ username: username.toLowerCase() });
-    if (!owner || owner._id.toString() !== req.user.id) {
-        return next(new AppError('Repository not found or unauthorized', 404));
-    }
+    const { reponame } = req.params;
 
     const repository = await Repository.findOne({
         name: reponame,
@@ -149,14 +133,9 @@ export const deleteRepository = asyncHandler(async (req, res, next) => {
 });
 
 export const starRepository = asyncHandler(async(req, res, next) => {
-    const { username, reponame } = req.params;
+    const { reponame } = req.params;
 
-    const owner = await User.findOne({ username: username.toLowerCase() });
-    if (!owner) {
-        return next(new AppError('Repository not found', 404));
-    }
-
-    const repository = await Repository.findOne({ name: reponame, owner: owner._id });
+    const repository = await Repository.findOne({ name: reponame });
 
     if(!repository) {
         return next(new AppError('Repository not found', 404));
@@ -197,14 +176,9 @@ export const starRepository = asyncHandler(async(req, res, next) => {
 });
 
 export const forkRepository = asyncHandler(async (req, res, next) => {
-    const { username, reponame } = req.params;
+    const { reponame } = req.params;
 
-    const owner = await User.findOne({ username: username.toLowerCase() });
-    if (!owner) {
-        return next(new AppError('Repository not found', 404));
-    }
-
-    const original = await Repository.findOne({ name: reponame, owner: owner._id });
+    const original = await Repository.findOne({ name: reponame });
 
     if(!original) {
         return next(new AppError('Repository not found', 404));
