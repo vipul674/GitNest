@@ -538,6 +538,7 @@ export default function GitNestHomepage() {
                                 icon: <GitBranch className="w-7 h-7 text-[#00dc82]" />,
                                 color: "#00dc82",
                                 bg: "from-[#ecfff7] to-[#f8fffc]",
+                                darkBg: "dark:from-[#0b1915] dark:to-[#0f1f1a]",
                             },
                             {
                                 title: "AI Workflows",
@@ -545,6 +546,7 @@ export default function GitNestHomepage() {
                                 icon: <Sparkles className="w-7 h-7 text-[#3b82f6]" />,
                                 color: "#3b82f6",
                                 bg: "from-[#f2f7ff] to-[#f9fbff]",
+                                darkBg: "dark:from-[#0b1524] dark:to-[#101a2c]",
                             },
                             {
                                 title: "Team Collaboration",
@@ -552,6 +554,7 @@ export default function GitNestHomepage() {
                                 icon: <Users className="w-7 h-7 text-[#9333ea]" />,
                                 color: "#9333ea",
                                 bg: "from-[#faf5ff] to-[#fcfaff]",
+                                darkBg: "dark:from-[#171022] dark:to-[#120f1e]",
                             },
                             {
                                 title: "Developer First",
@@ -559,12 +562,13 @@ export default function GitNestHomepage() {
                                 icon: <ShieldCheck className="w-7 h-7 text-[#f97316]" />,
                                 color: "#f97316",
                                 bg: "from-[#fff7f0] to-[#fffaf7]",
+                                darkBg: "dark:from-[#21140d] dark:to-[#18110e]",
                             },
                         ].map((feature) => (
 
                             <div
                                 key={feature.title}
-                                className={`group relative overflow-hidden rounded-[34px] border border-white/60 dark:border-white/5 bg-gradient-to-br ${feature.bg} dark:bg-[#11151d]/80 backdrop-blur-xl p-8 shadow-[0_10px_40px_rgba(15,23,42,0.05)] hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(15,23,42,0.12)] transition-all duration-500`}
+                                className={`group relative overflow-hidden rounded-[34px] border border-white/60 dark:border-white/5 bg-gradient-to-br ${feature.bg} ${feature.darkBg} backdrop-blur-xl p-8 shadow-[0_10px_40px_rgba(15,23,42,0.05)] hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(15,23,42,0.12)] transition-all duration-500`}
                             >
 
                                 {/* TOP GLOW */}
