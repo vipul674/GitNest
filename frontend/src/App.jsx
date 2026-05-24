@@ -16,6 +16,8 @@ import PullRequestDetailPage from './pages/PullRequestDetailPage';
 import UserProfile from './pages/UserProfile';
 import ActivityFeedPage from './pages/ActivityFeed.jsx';
 import ComponentShowcase from './pages/ComponentShowcase.jsx';
+import BackToTop from './components/BackToTop/BackToTop';
+import GitNestTerms from './pages/GitNestTerms.jsx';
 
 const Dashboard = () => {
   const { user, logout } = useAuthStore();
@@ -49,24 +51,26 @@ function App() {
     <div className="min-h-screen">
       <ToastContainer />
       <ErrorBoundary>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/" element={<GitNestHomepage />} />
-        <Route path="/docs" element={<DocumentationPage />} />
-        <Route path="/pull-requests" element={<PullRequestsPage />} />
-        <Route path="/pull-requests/:id" element={<PullRequestDetailPage />} />
-        <Route path="/activities" element={<ActivityFeedPage />} />
-        <Route path="/:username" element={<UserProfile />} />
-        <Route path="/showcase" element={<ComponentShowcase />} />
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/" element={<GitNestHomepage />} />
+          <Route path="/docs" element={<DocumentationPage />} />
+          <Route path="/pull-requests" element={<PullRequestsPage />} />
+          <Route path="/pull-requests/:id" element={<PullRequestDetailPage />} />
+          <Route path="/activities" element={<ActivityFeedPage />} />
+          <Route path="/:username" element={<UserProfile />} />
+          <Route path="/showcase" element={<ComponentShowcase />} />
+          <Route path="/terms" element={<GitNestTerms />} />
 
-        <Route element={<ProtectedRoute />}>
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+          </Route>
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
       </ErrorBoundary>
+      <BackToTop />
     </div>
   );
 }

@@ -1,35 +1,58 @@
+
 <div align="center">
 
+<img src="frontend/public/logo.png" width="140" alt="GitNest Logo"/>
+
+# GitNest
+
+### 🚀 Lightweight Collaborative Code Hosting Platform
+
+<p align="center">
+  <strong>A modern GitHub-inspired collaborative coding platform built with the MERN Stack.</strong>
+</p>
+
+<p align="center">
+Create repositories, browse code, manage issues, review pull requests, and collaborate seamlessly — all in one open-source platform.
+</p>
+
+<p align="center">
+  
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-Visit_Project-blue?style=for-the-badge)](https://gitnest-eld1.onrender.com)
+[![Documentation](https://img.shields.io/badge/📖_Documentation-Read_Guide-success?style=for-the-badge)](./CONTRIBUTING.md)
+[![Report Bug](https://img.shields.io/badge/🐛_Report_Bug-red?style=for-the-badge)](../../issues/new?template=bug_report.md)
+[![Request Feature](https://img.shields.io/badge/✨_Request_Feature-purple?style=for-the-badge)](../../issues/new?template=feature_request.md)
+
+</p>
+
+
+<!-- Status Badges -->
 <img src="https://img.shields.io/badge/version-0.1.0-blue?style=for-the-badge" alt="version"/>
 <img src="https://img.shields.io/badge/PRs-welcome-teal?style=for-the-badge" alt="PRs Welcome"/>
 <img src="https://img.shields.io/github/repo-size/Ankita15k/GitNest?style=for-the-badge" alt="Repo_Size"/>
 <img src="https://img.shields.io/badge/license-MIT-red?style=for-the-badge" alt="MIT License"/>
 <img src="https://img.shields.io/badge/stack-MERN-pink?style=for-the-badge" alt="MERN Stack"/>
 
+<!-- Social & GitHub Stats -->
+<p align="center">
+  <img src="https://api.visitorbadge.io/api/visitors?path=Ankita15k%2FGitNest%20&countColor=%23263759&style=flat" alt="Visitors"/>
+  <a href="https://github.com/ellerbrock/open-source-badges/"><img src="https://badges.frapsoft.com/os/v1/open-source.svg?v=103" alt="Open Source Love svg1"/></a>
+  <img src="https://img.shields.io/github/forks/Ankita15k/GitNest" alt="GitHub forks"/>
+  <img src="https://img.shields.io/github/stars/Ankita15k/GitNest" alt="GitHub Repo stars"/>
+  <img src="https://img.shields.io/github/contributors/Ankita15k/GitNest" alt="GitHub contributors"/>
+  <img src="https://img.shields.io/github/last-commit/Ankita15k/GitNest" alt="GitHub last commit"/>
+  <a href="https://discord.gg/QHSNsRuA"><img src="https://img.shields.io/discord/1505228467086823504?color=5865F2&label=Join%20Discord&logo=discord&logoColor=white" alt="Join Discord"/></a>
+</p>
 
-![Visitors](https://api.visitorbadge.io/api/visitors?path=Ankita15k%2FGitNest%20&countColor=%23263759&style=flat)
-
-[![Open Source Love svg1](https://badges.frapsoft.com/os/v1/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
-![GitHub forks](https://img.shields.io/github/forks/Ankita15k/GitNest)
-![GitHub Repo stars](https://img.shields.io/github/stars/Ankita15k/GitNest)
-![GitHub contributors](https://img.shields.io/github/contributors/Ankita15k/GitNest)
-![GitHub last commit](https://img.shields.io/github/last-commit/Ankita15k/GitNest)
-[![Join Discord](https://img.shields.io/discord/1505228467086823504?color=5865F2&label=Join%20Discord&logo=discord&logoColor=white)](https://discord.gg/QHSNsRuA)
-
-## <img width="120" height="110" alt="Logo" src="https://github.com/user-attachments/assets/b4cf9a44-aa69-4256-bae9-7f67b5246278" />
-
-# GitNest - Lightweight Collaborative Code Hosting Platform
-
-**A full-featured GitHub-inspired platform built with the MERN stack.**  
-Create repositories, browse code, manage issues, review pull requests, and collaborate — all in one open-source app.
-
-[🚀 Live Demo](#) · [📖 Docs](#) · [🐛 Report Bug](../../issues/new?template=bug_report.md) · [✨ Request Feature](../../issues/new?template=feature_request.md)
 
 </div>
 
 ---
 
 ## 📸 Screenshots
+
+| **Home Page** | **Platform Features** | **Contribution** |
+|------------|------------|------------|
+|<img height="1000" alt="image" src="https://github.com/user-attachments/assets/be8f7a4a-df2b-4d98-8df7-456de9b5b2d5" /> | <img height="1000" alt="image" src="https://github.com/user-attachments/assets/1fa87b65-23ba-4896-9594-36643af2cf01" />|<img width="1919" height="1078" alt="image" src="https://github.com/user-attachments/assets/5d0afdfe-69a5-4ca1-8a18-c1574d4f82f5" />|
 
 ### Component Showcase
 
@@ -84,7 +107,7 @@ The dark mode is implemented using TailwindCSS `dark:` variants, ensuring perfec
 
 ---
 
-## ✨ Features
+## ⚡ Features
 
 - 🔐 **Authentication** — Register, login, JWT sessions, GitHub OAuth
 - 📁 **Repository Management** — Create, delete, fork, and star repos
@@ -95,22 +118,49 @@ The dark mode is implemented using TailwindCSS `dark:` variants, ensuring perfec
 - 🔔 **Real-time Notifications** — Live updates via Socket.io
 - 🌙 **Dark Mode** — Full dark/light theme support
 
----
+## 🛠 Engineering Stack
 
-## 🛠️ Tech Stack
+| Layer | Component |
+| :--- | :--- |
+| **Frontend** | `React 18`, `Vite`, `TailwindCSS`, `Zustand`, `React Query` |
+| **Backend** | `Node.js`, `Express.js` |
+| **Database** | `MongoDB` + `Mongoose` |
+| **Cache** | `Redis` |
+| **Real-time** | `Socket.io` |
+| **Auth** | `JWT`, `bcrypt` |
+| **Storage** | `Cloudinary`, `Supabase` |
+| **DevOps** | `GitHub Actions` |
 
-| Layer | Technology |
-|---|---|
-| **Frontend** | React 18, Vite, TailwindCSS, Zustand, React Query |
-| **Backend** | Node.js, Express.js |
-| **Database** | MongoDB + Mongoose |
-| **Cache** | Redis |
-| **Real-time** | Socket.io |
-| **Auth** | JWT, bcrypt |
-| **Storage** | Cloudinary, Supabase |
-| **DevOps** | GitHub Actions |
 
----
+## 📁 Current Project Structure
+
+```
+gitnest/
+|── .github/ 
+|   ├── ISSUE_TEMPLATE
+|   └── workflows
+├── backend/               
+│   ├── scripts/    
+│   └── src      
+│       ├── config
+│       ├── constants
+│       ├── controllers
+│       ├── middleware
+│       ├── models
+│       ├── routes
+│       ├── services
+│       ├── utils
+│       └── validators
+└── frontend/
+    |── public/
+    └── src/
+        ├── components/ 
+        ├── pages/        
+        ├── store/       
+        ├── hooks/         
+        ├── api/         
+        └── utils
+```
 
 ## 🎨 UI Components
 
@@ -135,9 +185,10 @@ GitNest includes a comprehensive component library with full dark mode support:
 
 For complete component documentation and examples, see [`frontend/src/components/COMPONENTS_DOCUMENTATION.md`](frontend/src/components/COMPONENTS_DOCUMENTATION.md).
 
----
+
 
 ## 📁 Project Structure
+
 
 ```
 gitnest/
@@ -166,7 +217,6 @@ gitnest/
 └── .github/               # Issue templates, workflows, PR template
 ```
 
----
 
 ## 🚀 Getting Started
 
@@ -231,9 +281,9 @@ You can easily run the entire application (Frontend, Backend, MongoDB, Redis) us
    - Frontend: http://localhost:5173
    - Backend API: http://localhost:5000/api/v1
 
----
 
-Proposed Frontend Structure to buid components
+## 🏗️ Planned Frontend Architecture (Future Scope)
+> ⚠️ This is a proposed structure for future development and may not reflect the current repository implementation.
 ```
 frontend/
 ├── src/
@@ -478,7 +528,6 @@ frontend/
 
 ```
 
----
 ## 🤝 Contributing
 
 We love contributions! GitNest is a **GSSoC 2026** project and welcomes developers of all experience levels.
@@ -491,7 +540,6 @@ We love contributions! GitNest is a **GSSoC 2026** project and welcomes develope
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for full details on the workflow, coding standards, and commit message format.
 
----
 
 ## 🗺️ Roadmap
 
@@ -506,19 +554,24 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for full details on the workflow, codin
 - [ ] Tests (unit + integration)
 - [x] Docker setup (docker-compose for full stack)
 - [ ] Deployment & CI/CD
+   
+## 📜 License
 
----
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](./LICENSE)
 
-## 📄 License
+This project is released under the **MIT License**.  
+Feel free to **use, modify, and distribute** it.
+   
+## 🌟 Support the Project
 
-This project is licensed under the **MIT License** — see the [LICENSE](./LICENSE) file for details.
+**If you find this project helpful, please consider giving it a star!**  
+*It helps more developers discover this work.*
 
----
+<a href="../../stargazers">
+  <img src="https://img.shields.io/github/stars/Ankita15k/GitNest?style=for-the-badge&color=gold&logo=github" alt="Stars"/>
+</a>
 
-<div align="center">
+<br />
 
-⭐ **Star this repo** if you find it helpful — it helps the project get more visibility!
-
-Made with ❤️ for Open Source Community
-
-</div>
+**Built with ❤️ by the Open Source Community**  
+🚀 *Collaborate • Contribute • Create*

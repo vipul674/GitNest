@@ -5,8 +5,8 @@ import AppError from '../utils/AppError.js';
 import { sendSuccess } from '../utils/responseHandlers.js';
 import { logActivitySafely } from '../utils/logActivitySafely.js';
 import ACTIVITY_TYPES from '../constants/activityTypes.js';
+import paginate, { buildPaginationMeta } from '../utils/paginate.js';
 
-// Get user profile by ID or username
 export const getUserProfile = asyncHandler(async (req, res, next) => {
   const { username } = req.params;
 
@@ -189,20 +189,42 @@ export const updateProfile = asyncHandler(async (req, res, next) => {
 
 // Get followers of a user
 export const getFollowers = asyncHandler(async (req, res, next) => {
-  const user = await User.findOne({ username: req.params.username.toLowerCase() })
-  .populate('followers', 'username avatarUrl bio');
+  const user = await User.findOne({ username: req.params.username.toLowerCase() });
 
-  if(!user) return next(new AppError('User not found', 404));
+  if (!user) return next(new AppError('User not found', 404));
 
-  sendSuccess(res, 200, user.followers, 'Followers fetched successfully');
+  const { page, limit, skip } = paginate(req.query.page, req.query.limit);
+
+  const [followers, totalCount] = await Promise.all([
+    User.find({ _id: { $in: user.followers } })
+      .select('username avatarUrl bio')
+      .skip(skip)
+      .limit(limit),
+    User.countDocuments({ _id: { $in: user.followers } }),
+  ]);
+
+  const pagination = buildPaginationMeta(page, limit, totalCount);
+
+  sendSuccess(res, 200, { followers, pagination }, 'Followers fetched successfully');
 });
 
 // Get following of a user
 export const getFollowing = asyncHandler(async (req, res, next) => {
-  const user = await User.findOne({ username: req.params.username.toLowerCase() })
-  .populate('following', 'username avatarUrl bio');
+  const user = await User.findOne({ username: req.params.username.toLowerCase() });
 
   if (!user) return next(new AppError('User not found', 404));
 
-  sendSuccess(res, 200, user.following, 'Following fetched successfully');
+  const { page, limit, skip } = paginate(req.query.page, req.query.limit);
+
+  const [following, totalCount] = await Promise.all([
+    User.find({ _id: { $in: user.following } })
+      .select('username avatarUrl bio')
+      .skip(skip)
+      .limit(limit),
+    User.countDocuments({ _id: { $in: user.following } }),
+  ]);
+
+  const pagination = buildPaginationMeta(page, limit, totalCount);
+
+  sendSuccess(res, 200, { following, pagination }, 'Following fetched successfully');
 });
