@@ -950,6 +950,28 @@ export default function GitNestHomepage() {
                             </div>
 
                         </div>
+
+                        {/* LEGAL */}
+                        <div>
+
+                            <h4 className="text-[28px] font-black tracking-[-0.04em] text-[#071138] dark:text-white mb-8">
+                                Legal
+                            </h4>
+
+                            <div className="space-y-5">
+
+                                <Link
+                                    to="/terms"
+                                    className="group flex items-center gap-3 text-[17px] text-[#475569] hover:text-[#00b86b] transition-all duration-300"
+                                >
+
+                                    <div className="w-2 h-2 rounded-full bg-[#00c97b] group-hover:scale-150 transition-transform" />
+
+                                    Terms & Conditions
+
+                                </Link>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </footer>
