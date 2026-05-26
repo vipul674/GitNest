@@ -3,10 +3,13 @@ import { persist } from 'zustand/middleware';
 import { loginUser, registerUser, getMe } from '../api/authApi';
 
 const extractUserData = (responseData) => {
-  if (!responseData || !responseData.data) {
+  const payload = responseData?.data ?? responseData;
+
+  if (!payload) {
     return null;
   }
-  const { _id, username, email, token } = responseData.data;
+
+  const { _id, username, email, token } = payload;
   return { _id, username, email, token };
 };
 
@@ -15,6 +18,16 @@ const extractErrorMessage = (error) => {
     return error.errors.map((err) => err.message).join(', ');
   }
   return error?.message || 'An error occurred';
+};
+
+const getFriendlyAuthError = (error, fallbackMessage) => {
+  const message = extractErrorMessage(error);
+
+  if (message && message !== 'An error occurred') {
+    return message;
+  }
+
+  return fallbackMessage;
 };
 
 export const useAuthStore = create(
@@ -30,9 +43,10 @@ export const useAuthStore = create(
         set({ loading: true, error: null });
         try {
           const res = await loginUser({ email, password });
+          const user = extractUserData(res);
           set({
-            user: { _id: res._id, username: res.username, email: res.email },
-            token: res.token,
+            user,
+            token: user?.token ?? null,
             isAuthenticated: true,
             loading: false,
           });
@@ -49,9 +63,10 @@ export const useAuthStore = create(
         set({ loading: true, error: null });
         try {
           const res = await registerUser(userData);
+          const user = extractUserData(res);
           set({
-            user: { _id: res._id, username: res.username, email: res.email },
-            token: res.token,
+            user,
+            token: user?.token ?? null,
             isAuthenticated: true,
             loading: false,
           });
@@ -75,11 +90,11 @@ export const useAuthStore = create(
         try {
           const res = await getMe();
           set({
-            user: res,
+            user: extractUserData(res),
             isAuthenticated: true,
             loading: false,
           });
-        } catch (error) {
+        } catch {
           set({
             user: null,
             token: null,

@@ -62,6 +62,12 @@ export const followUser = asyncHandler(async (req, res, next) => {
       { $addToSet: { following: target._id } },
       { session }
     );
+    
+    await User.findByIdAndUpdate(
+      req.user._id,
+      { $addToSet: { following: target._id } },
+      { session }
+    );
 
     if (selfResult.matchedCount === 0) {
       await session.abortTransaction();

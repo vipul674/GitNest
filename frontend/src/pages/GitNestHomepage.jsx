@@ -262,12 +262,15 @@ export default function GitNestHomepage() {
                                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                             </Link>
 
-                            <button className="px-8 py-3 rounded-3xl border border-zinc-200 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl text-zinc-700 dark:text-zinc-200 hover:shadow-xl transition-all flex items-center gap-3">
+                            <Link
+                                to="/docs#architecture"
+                                className="px-8 py-3 rounded-3xl border border-zinc-200 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl text-zinc-700 dark:text-zinc-200 hover:shadow-xl transition-all flex items-center gap-3"
+                            >
 
                                 <Layers3 className="w-5 h-5" />
 
                                 View Architecture
-                            </button>
+                            </Link>
                         </div>
 
                         {/* TRACKS */}
