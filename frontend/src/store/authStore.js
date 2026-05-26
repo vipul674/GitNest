@@ -82,7 +82,7 @@ export const useAuthStore = create(
       },
     }),
     {
-      name: 'auth-storage', // local storage key
+      name: 'auth-storage', // local storage-key
     }
   )
 );
