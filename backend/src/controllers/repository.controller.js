@@ -9,7 +9,7 @@ import AppError from '../utils/AppError.js';
 import { sendSuccess } from '../utils/responseHandlers.js';
 import { logActivity } from '../services/activity.service.js';
 import ACTIVITY_TYPES from '../constants/activityTypes.js';
-import paginate, { buildPaginationMeta } from '../utils/paginate.js';
+import paginate, { buildPaginationMeta } from '../utils/paginate.js';ux
 
 // DRY helper — resolves a :username param to the owner document's _id.
 // Returns null when the username does not exist so callers can 404 cleanly.
