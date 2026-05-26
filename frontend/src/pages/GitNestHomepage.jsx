@@ -170,12 +170,22 @@ export default function GitNestHomepage() {
 
             <AnimatePresence>
                 {mobileMenuOpen && (
+                    <>
+                        {/* Backdrop — click outside to close */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="lg:hidden fixed inset-0 z-40"
+                            onClick={() => setMobileMenuOpen(false)}
+                        />
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
                         transition={{ duration: 0.25 }}
-                        className="lg:hidden absolute top-[88px] left-3 right-3 rounded-3xl border border-white/10 bg-white/95 dark:bg-[#0c0f14]/95 backdrop-blur-2xl shadow-2xl p-6 z-50"
+                        className="lg:hidden fixed top-[88px] left-3 right-3 rounded-3xl border border-white/10 bg-white/95 dark:bg-[#0c0f14]/95 backdrop-blur-2xl shadow-2xl p-6 z-50"
                     >
                         <div className="flex flex-col gap-5">
                             {navLinks.map((item) => (
@@ -204,6 +214,7 @@ export default function GitNestHomepage() {
                             </Link>
                         </div>
                     </motion.div>
+                    </>
                 )}
             </AnimatePresence>
 
