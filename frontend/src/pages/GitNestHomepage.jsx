@@ -764,7 +764,7 @@ export default function GitNestHomepage() {
                 <div className="max-w-7xl mx-auto px-6 relative z-10">
 
                     {/* MAIN CARD */}
-                    <div className="relative overflow-hidden rounded-[42px] border border-[#b8f0dd] bg-gradient-to-br from-white via-[#f7fffc] to-[#f4fffb] dark:from-[#11151d] dark:to-[#0c1017] shadow-[0_20px_80px_rgba(16,185,129,0.08)] px-8 md:px-16 py-20 text-center">
+                    <div className="relative overflow-hidden rounded-[42px] border border-[#b8f0dd] bg-gradient-to-br from-white via-[#f7fffc] to-[#f4fffb] dark:from-[#11151d] dark:to-[#0c1017] shadow-[0_20px_80px_rgba(16,185,129,0.08)] px-8 md:px-16 py-14 text-center">
 
                         {/* FLOATING CODE CARD */}
                         <div className="hidden lg:flex absolute right-16 top-24 w-[140px] h-[140px] rounded-[36px] border border-white/60 bg-white/60 backdrop-blur-xl shadow-[0_20px_60px_rgba(16,185,129,0.15)] items-center justify-center rotate-[16deg]">
@@ -833,7 +833,7 @@ export default function GitNestHomepage() {
             </section>
 
             {/* Footer */}
-            <footer className="relative overflow-hidden border-t border-[#dce7e3] bg-[#f8fbfa] dark:bg-[#080b11] py-20">
+            <footer className="relative overflow-hidden border-t border-[#dce7e3] bg-[#f8fbfa] dark:bg-[#080b11] py-14">
 
                 {/* BACKGROUND EFFECTS */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -851,7 +851,7 @@ export default function GitNestHomepage() {
                 <div className="relative z-10 max-w-7xl mx-auto px-6">
 
                     {/* MAIN GRID */}
-                    <div className="grid md:grid-cols-4 gap-16">
+                    <div className="grid md:grid-cols-4 gap-10">
 
                         {/* BRAND */}
                         <div>
@@ -881,7 +881,7 @@ export default function GitNestHomepage() {
                             </div>
 
                             {/* DESCRIPTION */}
-                            <p className="text-[17px] leading-9 text-[#64748b] max-w-sm mb-8">
+                            <p className="text-[15px] leading-8 text-[#64748b] max-w-sm mb-8">
                                 A modern collaborative development platform inspired by GitHub and built for open source communities worldwide.
                             </p>
 
@@ -894,11 +894,11 @@ export default function GitNestHomepage() {
                         {/* PLATFORM */}
                         <div>
 
-                            <h4 className="text-[28px] font-black tracking-[-0.04em] text-[#071138] dark:text-white mb-8">
+                            <h4 className="text-[22px] font-black tracking-[-0.04em] text-[#071138] dark:text-white mb-8">
                                 Platform
                             </h4>
 
-                            <div className="space-y-5">
+                            <div className="space-y-3">
 
                                 {[
                                     "Repositories",
@@ -924,11 +924,11 @@ export default function GitNestHomepage() {
                         {/* DEVELOPERS */}
                         <div>
 
-                            <h4 className="text-[28px] font-black tracking-[-0.04em] text-[#071138] dark:text-white mb-8">
+                            <h4 className="text-[22px] font-black tracking-[-0.04em] text-[#071138] dark:text-white mb-8">
                                 Developers
                             </h4>
 
-                            <div className="space-y-5">
+                            <div className="space-y-3">
 
                                 {[
                                     "Contribution Guide",
@@ -948,13 +948,23 @@ export default function GitNestHomepage() {
 
                                     </a>
                                 ))}
+
+                                {/* LEGAL LINK */}
+                                <Link
+                                    to="/terms"
+                                    className="group flex items-center gap-3 text-[16px] text-[#475569] hover:text-[#00b86b] transition-all duration-300"
+                                >
+                                    <div className="w-2 h-2 rounded-full bg-[#00c97b] group-hover:scale-150 transition-transform" />
+
+                                    Terms & Conditions
+                                </Link>
                             </div>
                         </div>
 
                         {/* TECH STACK */}
                         <div>
 
-                            <h4 className="text-[28px] font-black tracking-[-0.04em] text-[#071138] dark:text-white mb-8">
+                            <h4 className="text-[22px] font-black tracking-[-0.04em] text-[#071138] dark:text-white mb-8">
                                 Tech Stack
                             </h4>
 
@@ -985,27 +995,7 @@ export default function GitNestHomepage() {
 
                         </div>
 
-                        {/* LEGAL */}
-                        <div>
 
-                            <h4 className="text-[28px] font-black tracking-[-0.04em] text-[#071138] dark:text-white mb-8">
-                                Legal
-                            </h4>
-
-                            <div className="space-y-5">
-
-                                <Link
-                                    to="/terms"
-                                    className="group flex items-center gap-3 text-[17px] text-[#475569] hover:text-[#00b86b] transition-all duration-300"
-                                >
-
-                                    <div className="w-2 h-2 rounded-full bg-[#00c97b] group-hover:scale-150 transition-transform" />
-
-                                    Terms & Conditions
-
-                                </Link>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </footer>
