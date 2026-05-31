@@ -1,45 +1,54 @@
-import express from 'express';
-import compression from 'compression';
-import cors from 'cors';
-import helmet from 'helmet';
-import mongoSanitize from 'express-mongo-sanitize';
-import hpp from 'hpp';
-import morgan from 'morgan';
-import rateLimit from 'express-rate-limit';
-import swaggerUi from 'swagger-ui-express';
-import authRoutes from './routes/auth.routes.js';
-import userRoutes from './routes/user.routes.js';
-import repositoryRoutes from './routes/repository.routes.js';
-import activityRoutes from './routes/activity.routes.js';
-import pullRequestRoutes from './routes/pullRequest.routes.js';
-import architectureRoutes from './routes/architectureRoutes.js';
-import healthRoute from './routes/health.route.js';
-import commitHistoryRoutes from './routes/commitHistory.routes.js';
-import fileBrowserRoutes from './routes/fileBrowser.routes.js';
-import searchRoutes from './routes/search.routes.js';
-import errorHandler from './middleware/errorHandler.js';
-import AppError from './utils/AppError.js';
-import swaggerSpec from './config/swagger.js';
-import { requestIdMiddleware, attachRequestIdToResponse } from './middleware/requestId.js';
-import { sendError } from './utils/responseHandlers.js';
-import ERROR_CODES from './constants/errorCodes.js';
-import './events/subscribers.js';
+import express from "express";
+import cors from "cors";
+import helmet from "helmet";
+import mongoSanitize from "express-mongo-sanitize";
+import hpp from "hpp";
+import morgan from "morgan";
+import rateLimit from "express-rate-limit";
+import swaggerUi from "swagger-ui-express";
+import authRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
+import repositoryRoutes from "./routes/repository.routes.js";
+import activityRoutes from "./routes/activity.routes.js";
+import pullRequestRoutes from "./routes/pullRequest.routes.js";
+import architectureRoutes from "./routes/architectureRoutes.js";
+import healthRoute from "./routes/health.route.js";
+import commitHistoryRoutes from "./routes/commitHistory.routes.js";
+import fileBrowserRoutes from "./routes/fileBrowser.routes.js";
+import errorHandler from "./middleware/errorHandler.js";
+import AppError from "./utils/AppError.js";
+import swaggerSpec from "./config/swagger.js";
+import {
+  requestIdMiddleware,
+  attachRequestIdToResponse,
+} from "./middleware/requestId.js";
+import { sendError } from "./utils/responseHandlers.js";
+import ERROR_CODES from "./constants/errorCodes.js";
+
+import passport from "passport";
+import session from "express-session";
+
+import "./config/passport.js";
+import githubAuthRoutes from "./routes/auth.github.routes.js";
 
 const createApp = () => {
   const app = express();
 
-  app.disable('x-powered-by');
-  app.use(compression({ threshold: 1024 }));
+  app.disable("x-powered-by");
 
-  if (process.env.TRUST_PROXY === '1') {
-    app.set('trust proxy', 1);
+  if (process.env.TRUST_PROXY === "1") {
+    app.set("trust proxy", 1);
   }
 
   const corsOptions = process.env.CORS_ORIGIN
-    ? { origin: process.env.CORS_ORIGIN.split(',').map((origin) => origin.trim()) }
+    ? {
+        origin: process.env.CORS_ORIGIN.split(",").map((origin) =>
+          origin.trim(),
+        ),
+      }
     : undefined;
 
-  const bodyLimit = process.env.REQUEST_BODY_LIMIT || '10kb';
+  const bodyLimit = process.env.REQUEST_BODY_LIMIT || "10kb";
   const toNumber = (value, fallback) => {
     const parsed = Number(value);
     return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
@@ -54,8 +63,22 @@ const createApp = () => {
   app.use(requestIdMiddleware);
   app.use(attachRequestIdToResponse);
 
-  if (process.env.LOG_REQUESTS === '1' || process.env.NODE_ENV === 'development') {
-    app.use(morgan('dev'));
+  app.use(
+    session({
+      secret: process.env.JWT_SECRET,
+      resave: false,
+      saveUninitialized: false,
+    }),
+  );
+
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  if (
+    process.env.LOG_REQUESTS === "1" ||
+    process.env.NODE_ENV === "development"
+  ) {
+    app.use(morgan("dev"));
   }
 
   const apiLimiter = rateLimit({
@@ -67,32 +90,37 @@ const createApp = () => {
       sendError(res, {
         statusCode: 429,
         code: ERROR_CODES.RATE_LIMITED,
-        message: 'Too many requests, please try again later',
+        message: "Too many requests, please try again later",
         requestId: req.requestId,
       });
     },
   });
 
-  if (process.env.NODE_ENV !== 'test') {
-    app.use('/api', apiLimiter);
+  if (process.env.NODE_ENV !== "test") {
+    app.use("/api", apiLimiter);
   }
 
-  app.use('/health', healthRoute);
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-  app.get('/api-docs.json', (req, res) => res.status(200).json(swaggerSpec));
-  app.use('/api/v1/auth', authRoutes);
-  app.use('/api/v1/repos', repositoryRoutes);
-  app.use('/api/v1/repositories', repositoryRoutes);
-  app.use('/api/v1/architecture', architectureRoutes);
-  app.use('/api/v1/users', userRoutes);
-  app.use('/api/v1/activities', activityRoutes);
-  app.use('/api/v1/pull-requests', pullRequestRoutes);
-  app.use('/api/v1/search', searchRoutes);
-  app.use('/api/v1/repositories', commitHistoryRoutes);
-  app.use('/api/v1/repositories', fileBrowserRoutes);
-
+  app.use("/health", healthRoute);
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.get("/api-docs.json", (req, res) => res.status(200).json(swaggerSpec));
+  app.use("/api/v1/auth", authRoutes);
+  app.use("/api/v1/repos", repositoryRoutes);
+  app.use("/api/v1/repositories", repositoryRoutes);
+  app.use("/api/v1/architecture", architectureRoutes);
+  app.use("/api/v1/users", userRoutes);
+  app.use("/api/v1/activities", activityRoutes);
+  app.use("/api/v1/pull-requests", pullRequestRoutes);
+  app.use("/api/v1/repositories", commitHistoryRoutes);
+  app.use("/api/v1/repositories", fileBrowserRoutes);
+  app.use("/api/v1/auth", githubAuthRoutes);
   app.use((req, res, next) => {
-    next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404, ERROR_CODES.NOT_FOUND));
+    next(
+      new AppError(
+        `Can't find ${req.originalUrl} on this server!`,
+        404,
+        ERROR_CODES.NOT_FOUND,
+      ),
+    );
   });
 
   app.use(errorHandler);

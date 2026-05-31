@@ -124,14 +124,14 @@ const Register = () => {
     }
 
     try {
-      await register({ username, email, password });
+      const user = await register({ username, email, password });
 
       addToast({
         message: "Account created successfully!",
         type: "success",
       });
 
-      navigate("/");
+      navigate(`/user/${user.username}`, { replace: true });
     } catch (err) {
       if (err?.errors && Array.isArray(err.errors)) {
         const fieldErrors = {};
@@ -166,110 +166,100 @@ const Register = () => {
       </div>
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-10 items-center animate-fadeIn">
-                  {/* LEFT */}
-                  <div>
+          {/* LEFT */}
+          <div>
+            {/* BADGE */}
+            <div className="inline-flex items-center gap-3 px-5 py-0 rounded-full border border-[#00dc82]/10 bg-white/60 dark:bg-white/[0.03] backdrop-blur-xl text-[#1edb8c] shadow-lg mb-10">
+              <Sparkles className="w-4 h-4" />
 
-                        {/* BADGE */}
-                        <div className="inline-flex items-center gap-3 px-5 py-0 rounded-full border border-[#00dc82]/10 bg-white/60 dark:bg-white/[0.03] backdrop-blur-xl text-[#1edb8c] shadow-lg mb-10">
+              <span className="text-sm font-medium p-3">• Join GitNest</span>
+            </div>
 
-                            <Sparkles className="w-4 h-4" />
+            {/* TITLE */}
+            <h1 className="text-[50px]  leading-[1]  font-black">
+              <span className="block">Start Collaboratig</span>
 
-                            <span className="text-sm font-medium p-3">
-                              • Join  GitNest
-                            </span>
-                        </div>
+              <span className="block">with</span>
 
-                        {/* TITLE */}
-                        <h1 className="text-[50px]  leading-[1]  font-black">
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#00dc82] via-[#36e4da] to-[#4fd1ff] drop-shadow-[0_10px_30px_rgba(0,220,130,0.25)]">
+                GitNest
+              </span>
+            </h1>
 
-                            <span className="block">
-                                Start Collaboratig
-                            </span>
+            {/* DESCRIPTION */}
+            <p className="text-[16px] leading-7 text-zinc-950 dark:text-zinc-400 max-w-2xl mb-5 mt-2">
+              GitNest is a full-featured GitHub-inspired platform built with the
+              MERN stack. Create repositories, browse code, manage issues,
+              review pull requests, and collaborate — all in one open-source
+              developer ecosystem.
+            </p>
 
-                            <span className="block">
-                               with
-                            </span>
+            {/* TRACKS */}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-4">
+                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
+                  <Wand2 className="w-5 h-5 text-[#00dc82]" />
+                </div>
 
-                            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#00dc82] via-[#36e4da] to-[#4fd1ff] drop-shadow-[0_10px_30px_rgba(0,220,130,0.25)]">
-                                GitNest 
-                            </span>
-                        </h1>
+                <span className="text-zinc-700 dark:text-zinc-300 font-medium">
+                  AI <br />
+                  Workflows
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
+                  <Code2 className="w-5 h-5 text-[#00dc82]" />
+                </div>
 
-                        {/* DESCRIPTION */}
-                        <p className="text-[16px] leading-7 text-zinc-950 dark:text-zinc-400 max-w-2xl mb-5 mt-2">
-                            GitNest is a full-featured GitHub-inspired platform built with the MERN stack. Create repositories, browse code, manage issues, review pull requests, and collaborate — all in one open-source developer ecosystem.
-                        </p>
+                <span className="text-zinc-700 dark:text-zinc-300 font-medium">
+                  Repositories
+                </span>
+              </div>
 
-                        {/* TRACKS */}
-                        <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
+                  <Users className="w-5 h-5 text-[#00dc82]" />
+                </div>
 
-                                <div className="flex items-center gap-4">
-                                  <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
-                                      <Wand2 className="w-5 h-5 text-[#00dc82]" />
-                                  </div>
+                <span className="text-zinc-700 dark:text-zinc-300 font-medium">
+                  Open
+                  <br />
+                  Source
+                </span>
+              </div>
 
-                                  <span className="text-zinc-700 dark:text-zinc-300 font-medium">
-                                      AI <br />Workflows
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
-                                        <Code2 className="w-5 h-5 text-[#00dc82]" />
-                                    </div>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
+                  <Shield className="w-5 h-5 text-[#00dc82]" />
+                </div>
 
-                                    <span className="text-zinc-700 dark:text-zinc-300 font-medium">
-                                          Repositories
-                                    </span>
-                                </div>
+                <span className="text-zinc-700 dark:text-zinc-300 font-medium">
+                  Secure & Reliable
+                </span>
+              </div>
+            </div>
 
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
-                                    <Users className="w-5 h-5 text-[#00dc82]" />
-                                </div>
+            <div className="mt-10 flex items-center gap-4 rounded-[28px] border border-white/50 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-2xl px-5 py-4 shadow-xl max-w-md">
+              <div className="flex -space-x-3">
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="w-10 h-10 rounded-full border-2 border-white bg-gradient-to-br from-[#00dc82] to-[#4fd1ff]"
+                  />
+                ))}
+              </div>
 
-                                <span className="text-zinc-700 dark:text-zinc-300 font-medium">
-                                    Open<br />Source
-                                </span>
-                            </div>
+              <div>
+                <p className="font-semibold text-zinc-800 dark:text-white">
+                  Trusted by developers worldwide
+                </p>
 
-
-
-                            <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
-                                    <Shield className="w-5 h-5 text-[#00dc82]" />
-                                </div>
-
-                                <span className="text-zinc-700 dark:text-zinc-300 font-medium">
-                                    Secure & Reliable
-                                </span>
-                            </div>
-
-                        </div>
-
-                        <div className="mt-10 flex items-center gap-4 rounded-[28px] border border-white/50 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-2xl px-5 py-4 shadow-xl max-w-md">
-
-                          <div className="flex -space-x-3">
-                            {[1, 2, 3, 4].map((i) => (
-                              <div
-                                key={i}
-                                className="w-10 h-10 rounded-full border-2 border-white bg-gradient-to-br from-[#00dc82] to-[#4fd1ff]"
-                              />
-                            ))}
-                          </div>
-
-                          <div>
-                            <p className="font-semibold text-zinc-800 dark:text-white">
-                              Trusted by developers worldwide
-                            </p>
-
-                            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                              Open source • Community driven • Secure
-                            </p>
-                          </div>
-                        </div>
-
-                    </div>
-                    
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                  Open source • Community driven • Secure
+                </p>
+              </div>
+            </div>
+          </div>
 
           {/* Card */}
           <div className="relative rounded-[2rem] border border-zinc-200 dark:border-white/10 bg-white/80 dark:bg-[#0d1016]/80 backdrop-blur-xl p-8 md:p-10 shadow-2xl shadow-black/10 dark:shadow-black/40 overflow-hidden">
@@ -283,9 +273,9 @@ const Register = () => {
                     src={logo}
                     alt="GitNest"
                     className="block mx-auto w-8 h-8 object-contain dark:bg-white rounded-2xl"
-                />
+                  />
                 </div>
-                
+
                 <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
                   Create Account
                 </h2>
@@ -331,7 +321,10 @@ const Register = () => {
                     )}
                   </div>
                   {validationErrors.username && (
-                    <p id="username-error" className="mt-1 text-xs text-red-500">
+                    <p
+                      id="username-error"
+                      className="mt-1 text-xs text-red-500"
+                    >
                       {validationErrors.username}
                     </p>
                   )}
@@ -360,11 +353,13 @@ const Register = () => {
                           : "border-zinc-200 dark:border-white/10"
                       }`}
                     />
-                    {!validationErrors.email && isEmailValid && formData.email.trim() && (
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-emerald-500">
-                        <Check size={18} strokeWidth={2.5} />
-                      </div>
-                    )}
+                    {!validationErrors.email &&
+                      isEmailValid &&
+                      formData.email.trim() && (
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-emerald-500">
+                          <Check size={18} strokeWidth={2.5} />
+                        </div>
+                      )}
                   </div>
                   {validationErrors.email && (
                     <p id="email-error" className="mt-1 text-xs text-red-500">
@@ -407,15 +402,33 @@ const Register = () => {
                     </button>
                   </div>
                   {validationErrors.password && (
-                    <p id="password-error" className="mt-1 text-xs text-red-500">
+                    <p
+                      id="password-error"
+                      className="mt-1 text-xs text-red-500"
+                    >
                       {validationErrors.password}
                     </p>
                   )}
-                  <div id="password-rules" className="mt-3 grid grid-cols-2 gap-2">
-                    <PasswordRule ok={passwordRules.length} label="At least 8 characters" />
-                    <PasswordRule ok={passwordRules.upper} label="One uppercase letter" />
-                    <PasswordRule ok={passwordRules.lower} label="One lowercase letter" />
-                    <PasswordRule ok={passwordRules.number} label="One number" />
+                  <div
+                    id="password-rules"
+                    className="mt-3 grid grid-cols-2 gap-2"
+                  >
+                    <PasswordRule
+                      ok={passwordRules.length}
+                      label="At least 8 characters"
+                    />
+                    <PasswordRule
+                      ok={passwordRules.upper}
+                      label="One uppercase letter"
+                    />
+                    <PasswordRule
+                      ok={passwordRules.lower}
+                      label="One lowercase letter"
+                    />
+                    <PasswordRule
+                      ok={passwordRules.number}
+                      label="One number"
+                    />
                   </div>
                 </div>
 
@@ -440,8 +453,8 @@ const Register = () => {
                         validationErrors.confirmPassword
                           ? "border-red-500"
                           : passwordsMatch
-                          ? "border-emerald-500"
-                          : "border-zinc-200 dark:border-white/10"
+                            ? "border-emerald-500"
+                            : "border-zinc-200 dark:border-white/10"
                       }`}
                     />
                     <button
@@ -449,11 +462,18 @@ const Register = () => {
                       onClick={() => setShowConfirmPassword((s) => !s)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 transition-colors hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-white"
                     >
-                      {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      {showConfirmPassword ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <Eye size={18} />
+                      )}
                     </button>
                   </div>
                   {validationErrors.confirmPassword && (
-                    <p id="confirmPassword-error" className="mt-1 text-xs text-red-500">
+                    <p
+                      id="confirmPassword-error"
+                      className="mt-1 text-xs text-red-500"
+                    >
                       {validationErrors.confirmPassword}
                     </p>
                   )}
@@ -466,6 +486,15 @@ const Register = () => {
                   className="w-full py-3 rounded-2xl text-black font-semibold bg-emerald-400 hover:scale-[1.01] hover:bg-emerald-300 active:scale-[0.99] transition-all duration-300 shadow-xl shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "Creating Account..." : "Register"}
+                </button>
+                <button
+                  onClick={() => {
+                    window.location.href =
+                      "http://localhost:5000/api/v1/auth/github";
+                  }}
+                  className="w-full py-3 rounded-2xl text-black font-semibold bg-emerald-400 hover:scale-[1.01] hover:bg-emerald-300 active:scale-[0.99] transition-all duration-300 shadow-xl shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Continue with GitHub
                 </button>
 
                 {/* Sign in */}
@@ -483,7 +512,6 @@ const Register = () => {
           </div>
         </div>
       </div>
-
     </div>
   );
 };

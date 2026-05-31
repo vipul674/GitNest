@@ -56,49 +56,50 @@ const UserProfileContent = ({ username }) => {
     );
   }
 
-  const isOwnProfile = isAuthenticated && authUser?.username === profile.username;
-  const isFollowing = isAuthenticated && profile.followers?.some(
+  if (!profile) return null;
+
+  const isOwnProfile = isAuthenticated && authUser?.username === profile?.username;
+  const isFollowing = isAuthenticated && profile?.followers?.some(
     (id) => id === authUser?._id || id?._id === authUser?._id
   );
 
-  const joinedDate = new Date(profile.createdAt).toLocaleDateString('en-US', {
-    month: 'long',
-    year: 'numeric',
-  });
+  const joinedDate = profile?.createdAt 
+    ? new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    : 'Unknown Date';
 
   return (
     <>
       <div className="flex flex-col sm:flex-row gap-6 items-start">
         <div className="shrink-0">
-          {profile.avatarUrl ? (
+          {profile?.avatarUrl ? (
             <img
               src={profile.avatarUrl}
-              alt={profile.username}
+              alt={profile?.username || 'User'}
               className="w-24 h-24 rounded-full object-cover ring-2 ring-zinc-200 dark:ring-zinc-700"
             />
           ) : (
             <div className="w-24 h-24 rounded-full bg-emerald-500/20 dark:bg-emerald-500/10 flex items-center justify-center ring-2 ring-zinc-200 dark:ring-zinc-700">
               <span className="text-3xl font-bold text-emerald-500">
-                {profile.username[0].toUpperCase()}
+                {profile?.username ? profile.username[0].toUpperCase() : '?'}
               </span>
             </div>
           )}
         </div>
 
         <div className="flex-1 min-w-0">
-          <h1 className="text-2xl font-bold truncate">{profile.username}</h1>
-          {profile.bio && (
+          <h1 className="text-2xl font-bold truncate">{profile?.username}</h1>
+          {profile?.bio && (
             <p className="mt-1 text-zinc-600 dark:text-zinc-400 text-sm">{profile.bio}</p>
           )}
 
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-zinc-500 dark:text-zinc-400">
-            {profile.location && (
+            {profile?.location && (
               <span className="flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5" />
                 {profile.location}
               </span>
             )}
-            {profile.website && (
+            {profile?.website && (
               <a
                 href={profile.website.startsWith('http') ? profile.website : `https://${profile.website}`}
                 target="_blank"
@@ -119,13 +120,13 @@ const UserProfileContent = ({ username }) => {
             <span className="flex items-center gap-1 text-zinc-600 dark:text-zinc-400">
               <Users className="w-3.5 h-3.5" />
               <strong className="text-zinc-900 dark:text-white">
-                {profile.followers?.length ?? 0}
+                {profile?.followers?.length ?? 0}
               </strong>
               &nbsp;followers
             </span>
             <span className="text-zinc-600 dark:text-zinc-400">
               <strong className="text-zinc-900 dark:text-white">
-                {profile.following?.length ?? 0}
+                {profile?.following?.length ?? 0}
               </strong>
               &nbsp;following
             </span>
@@ -134,7 +135,7 @@ const UserProfileContent = ({ username }) => {
           <div className="mt-4">
             {isOwnProfile ? (
               <EditProfileButton />
-            ) : isAuthenticated ? (
+            ) : isAuthenticated && profile?.username ? (
               <FollowButton username={profile.username} isFollowing={isFollowing} />
             ) : null}
           </div>
@@ -148,50 +149,56 @@ const UserProfileContent = ({ username }) => {
             Repositories
           </h2>
 
-          {(!profile.repositories || profile.repositories.length === 0) ? (
+          {(!profile?.repositories || profile.repositories.length === 0) ? (
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
               No public repositories yet.
             </p>
           ) : (
             <div className="grid gap-3">
-              {profile.repositories.map((repo) => (
-                <div
-                  key={repo._id}
-                  className="border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer">
-                      {repo.name}
-                    </h3>
-                    {repo.stars > 0 && (
-                      <span className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-0.5 shrink-0">
-                        ★ {repo.stars}
-                      </span>
+              {profile.repositories?.map((repo, i) => {
+                if (!repo) return null; 
+                
+                return (
+                  <div
+                    key={repo?._id || `repo-${i}`}
+                    className="border border-zinc-200 dark:border-zinc-800 rounded-lg p-4 hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:underline cursor-pointer">
+                        {repo?.name || 'Unknown Repository'}
+                      </h3>
+                      {repo?.stars > 0 && (
+                        <span className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-0.5 shrink-0">
+                          ★ {repo.stars}
+                        </span>
+                      )}
+                    </div>
+                    {repo?.description && (
+                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">
+                        {repo.description}
+                      </p>
                     )}
+                    <div className="mt-2 flex flex-wrap gap-3 text-xs text-zinc-400 dark:text-zinc-500">
+                      {repo?.language && <span>{repo.language}</span>}
+                      {repo?.updatedAt && (
+                        <span>
+                          Updated {new Date(repo.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-3">
+                      {repo?.name && (
+                        <Link
+                          to={`/user/${username}/${repo.name}/architecture`}
+                          className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-600 hover:border-emerald-500/40 hover:bg-emerald-500/15 dark:text-emerald-400"
+                        >
+                          View Architecture
+                        </Link>
+                      )}
+                    </div>
                   </div>
-                  {repo.description && (
-                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">
-                      {repo.description}
-                    </p>
-                  )}
-                  <div className="mt-2 flex flex-wrap gap-3 text-xs text-zinc-400 dark:text-zinc-500">
-                    {repo.language && <span>{repo.language}</span>}
-                    {repo.updatedAt && (
-                      <span>
-                        Updated {new Date(repo.updatedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-3">
-                    <Link
-                      to={`/${username}/${repo.name}/architecture`}
-                      className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-600 hover:border-emerald-500/40 hover:bg-emerald-500/15 dark:text-emerald-400"
-                    >
-                      View Architecture
-                    </Link>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

@@ -74,14 +74,14 @@ const Login = () => {
     if (Object.keys(errors).length > 0) return;
 
     try {
-      await login(formData.email.trim(), formData.password.trim());
+      const user = await login(formData.email.trim(), formData.password.trim());
 
       addToast({
         message: "Signed in successfully!",
         type: "success",
       });
 
-      navigate("/");
+      navigate(`/user/${user.username}`, { replace: true });
     } catch (err) {
       if (err?.errors && Array.isArray(err.errors)) {
         const fieldErrors = {};
@@ -120,8 +120,9 @@ const Login = () => {
             </h1>
 
             <p className="text-zinc-500 dark:text-zinc-400 text-lg leading-8 max-w-xl mb-10">
-              Collaborate with contributors, manage repositories, review pull requests,
-              and build modern open-source workflows in one unified platform.
+              Collaborate with contributors, manage repositories, review pull
+              requests, and build modern open-source workflows in one unified
+              platform.
             </p>
 
             <div className="flex flex-wrap gap-4">
@@ -154,7 +155,8 @@ const Login = () => {
             </h1>
 
             <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-7 mb-6 px-4">
-              Collaborate with contributors and build modern open-source workflows.
+              Collaborate with contributors and build modern open-source
+              workflows.
             </p>
 
             <div className="flex flex-wrap justify-center gap-3">
@@ -210,10 +212,11 @@ const Login = () => {
                     aria-invalid={!!validationErrors.email}
                     aria-describedby="email-error"
                     placeholder="Enter your email"
-                    className={`w-full px-3 py-2 pr-11 rounded-md border outline-none transition focus:ring-2 focus:ring-indigo-500 ${validationErrors.email
-                      ? "border-red-500"
-                      : "border-zinc-200 dark:border-white/10"
-                      } bg-zinc-50 dark:bg-white/[0.04] text-gray-900 dark:text-white placeholder-gray-400`}
+                    className={`w-full px-3 py-2 pr-11 rounded-md border outline-none transition focus:ring-2 focus:ring-indigo-500 ${
+                      validationErrors.email
+                        ? "border-red-500"
+                        : "border-zinc-200 dark:border-white/10"
+                    } bg-zinc-50 dark:bg-white/[0.04] text-gray-900 dark:text-white placeholder-gray-400`}
                   />
 
                   {validationErrors.email && touched.email && (
@@ -239,10 +242,11 @@ const Login = () => {
                       aria-invalid={!!validationErrors.password}
                       aria-describedby="password-error"
                       placeholder="Enter your password"
-                      className={`w-full px-3 py-2 rounded-md border outline-none transition focus:ring-2 focus:ring-indigo-500 ${validationErrors.password
-                        ? "border-red-500"
-                        : "border-zinc-200 dark:border-white/10"
-                        } bg-zinc-50 dark:bg-white/[0.04] text-gray-900 dark:text-white placeholder-gray-400`}
+                      className={`w-full px-3 py-2 rounded-md border outline-none transition focus:ring-2 focus:ring-indigo-500 ${
+                        validationErrors.password
+                          ? "border-red-500"
+                          : "border-zinc-200 dark:border-white/10"
+                      } bg-zinc-50 dark:bg-white/[0.04] text-gray-900 dark:text-white placeholder-gray-400`}
                     />
 
                     <button
@@ -250,16 +254,15 @@ const Login = () => {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-white transition-colors"
                     >
-                      {showPassword ? (
-                        <EyeOff size={18} />
-                      ) : (
-                        <Eye size={18} />
-                      )}
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
 
                   {validationErrors.password && touched.password && (
-                    <p id="password-error" className="text-xs text-red-500 mt-1">
+                    <p
+                      id="password-error"
+                      className="text-xs text-red-500 mt-1"
+                    >
                       {validationErrors.password}
                     </p>
                   )}
@@ -293,6 +296,15 @@ const Login = () => {
                   className="w-full py-3 rounded-2xl text-black font-semibold bg-emerald-400 hover:scale-[1.01] hover:bg-emerald-300 active:scale-[0.99] transition-all duration-300 shadow-xl shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "Signing In..." : "Sign In"}
+                </button>
+                <button
+                  onClick={() => {
+                    window.location.href =
+                      "http://localhost:5000/api/v1/auth/github";
+                  }}
+                  className="w-full py-3 rounded-2xl text-black font-semibold bg-emerald-400 hover:scale-[1.01] hover:bg-emerald-300 active:scale-[0.99] transition-all duration-300 shadow-xl shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Sign in with GitHub
                 </button>
               </form>
 

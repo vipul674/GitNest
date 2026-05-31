@@ -151,9 +151,14 @@ export const contracts = {
     comment: { tags: ['Pull Requests'], security: [{ bearerAuth: [] }], request: { params: idParam, body: { type: 'object', additionalProperties: false, properties: { body: { type: 'string', minLength: 1 }, type: { type: 'string', enum: ['general', 'review'] } }, required: ['body'] } }, responses: { 201: sharedSchemas.successEnvelope(sharedSchemas.pullRequestComment) } },
     review: { tags: ['Pull Requests'], security: [{ bearerAuth: [] }], request: { params: idParam, body: { type: 'object', additionalProperties: false, properties: { action: { type: 'string', enum: ['approve', 'changes_requested', 'comment'] }, comment: { type: 'string' } }, required: ['action'] } }, responses: { 201: sharedSchemas.successEnvelope(sharedSchemas.review) } },
   },
+  security: {
+    scan: { tags: ['Security'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 202: sharedSchemas.successEnvelope({ type: 'object', additionalProperties: true }) } },
+    status: { tags: ['Security'], security: [{ bearerAuth: [] }], request: { params: { type: 'object', additionalProperties: true, properties: { username: { type: 'string', minLength: 1, maxLength: 39 }, reponame: { type: 'string', minLength: 1, maxLength: 100 }, scanId: { type: 'string', minLength: 1 } }, required: ['username', 'reponame', 'scanId'] } }, responses: { 200: sharedSchemas.successEnvelope({ type: 'object', additionalProperties: true }) } },
+    events: { tags: ['Security'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam, query: { type: 'object', additionalProperties: true, properties: { page: { type: 'integer', minimum: 1 }, limit: { type: 'integer', minimum: 1, maximum: 50 }, severity: { type: 'string', enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] }, type: { type: 'string', enum: ['SECRET_EXPOSED', 'VULNERABLE_DEPENDENCY', 'VERSION_MISMATCH', 'SUSPICIOUS_FILE'] }, scanId: { type: 'string' } } } }, responses: { 200: sharedSchemas.successEnvelope({ type: 'object', additionalProperties: true }) } },
   search: {
     global: { tags: ['Search'], request: { query: searchQuery }, responses: { 200: sharedSchemas.successEnvelope({ type: 'object', additionalProperties: true }) } },
   },
+},
 };
 
 export { components, sharedSchemas };

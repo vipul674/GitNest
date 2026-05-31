@@ -292,60 +292,43 @@ export const forkRepository = asyncHandler(async (req, res, next) => {
     return next(new AppError("You cannot fork your own repository", 400));
   }
 
+  // Check if already forked
+  const existing = await Repository.findOne({
+    owner: req.user.id,
+    forkedFrom: original._id,
+  });
+
+  if (existing) {
+    return next(new AppError("You have already forked this repository", 400));
+  }
+
+  let forkName = original.name;
+  const nameConflict = await Repository.findOne({
+    owner: req.user.id,
+    name: forkName,
+  });
+
+  if (nameConflict) {
+    forkName = `${original.name}-fork`;
+    const suffixConflict = await Repository.findOne({
+      owner: req.user.id,
+      name: forkName,
+    });
+    if (suffixConflict) {
+      return next(
+        new AppError(
+          `A repository named "${forkName}" already exists in your account. Please rename it first.`,
+          409,
+        ),
+      );
+    }
+  }
+
   const session = await mongoose.startSession();
   let forked;
 
   try {
     session.startTransaction();
-
-    const existingQuery = Repository.findOne({
-      name: reponame,
-      owner: req.user.id,
-      forkedFrom: original._id,
-    });
-    const existing =
-      typeof existingQuery?.session === "function"
-        ? await existingQuery.session(session)
-        : await existingQuery;
-
-    if (existing) {
-      await session.abortTransaction();
-      return next(new AppError("You have already forked this repository", 400));
-    }
-
-    // Resolve a safe fork name — auto-suffix if original name is taken
-    // by a non-fork repo already in the user's account
-    let forkName = original.name;
-    const nameConflictQuery = Repository.findOne({
-      owner: req.user.id,
-      name: forkName,
-    });
-    const nameConflict =
-      typeof nameConflictQuery?.session === "function"
-        ? await nameConflictQuery.session(session)
-        : await nameConflictQuery;
-
-    if (nameConflict) {
-      forkName = `${original.name}-fork`;
-      const suffixConflictQuery = Repository.findOne({
-        owner: req.user.id,
-        name: forkName,
-      });
-      const suffixConflict =
-        typeof suffixConflictQuery?.session === "function"
-          ? await suffixConflictQuery.session(session)
-          : await suffixConflictQuery;
-
-      if (suffixConflict) {
-        await session.abortTransaction();
-        return next(
-          new AppError(
-            `A repository named "${forkName}" already exists in your account. Please rename it first.`,
-            409,
-          ),
-        );
-      }
-    }
 
     [forked] = await Repository.create(
       [
@@ -363,49 +346,31 @@ export const forkRepository = asyncHandler(async (req, res, next) => {
       { session },
     );
 
-    original.forks.push(forked._id);
-    await original.save({ session });
+    await Repository.updateOne(
+      { _id: original._id },
+      { $push: { forks: forked._id } },
+      { session },
+    );
+
     await session.commitTransaction();
   } catch (error) {
     await session.abortTransaction();
-    return next(error);
+    return next(new AppError("Failed to fork repository", 500));
   } finally {
     session.endSession();
   }
 
-  // Clone filesystem storage from source to fork
   try {
-    const sourcePath = path.resolve(
-      process.cwd(),
-      "repositories",
-      original.owner.toString(),
-      original.name,
-    );
-
-    const targetPath = path.resolve(
-      process.cwd(),
-      "repositories",
-      req.user.id,
-      forked.name,
-    );
-
-    fs.mkdirSync(targetPath, { recursive: true });
-
-    if (fs.existsSync(path.join(sourcePath, ".git"))) {
-      const sourceGit = simpleGit(sourcePath);
-      const log = await sourceGit.log({ maxCount: 1 }).catch(() => ({ total: 0 }));
-      if (log.total > 0) {
-        await simpleGit().clone(sourcePath, targetPath);
-      } else {
-        await simpleGit(targetPath).init();
-      }
-    } else {
-      await simpleGit(targetPath).init();
-    }
-  } catch (error) {
-    await Repository.deleteOne({ _id: forked._id });
-    return next(new AppError("Failed to copy repository storage during fork", 500));
-  }
+    await logActivity({
+      actor: req.user.id,
+      type: ACTIVITY_TYPES.REPOSITORY_FORKED,
+      repository: forked._id,
+      metadata: {
+        repoName: forked.name,
+        forkedFrom: original.name,
+      },
+    });
+  } catch {}
 
   sendSuccess(res, 201, forked, "Repository forked successfully");
 });

@@ -861,8 +861,7 @@ export default function GitNestHomepage() {
                 <div className="relative z-10 max-w-7xl mx-auto px-6">
 
                     {/* MAIN GRID */}
-                    <div className="grid md:grid-cols-4 gap-10">
-
+                    <div className="grid md:grid-cols-[1.4fr_1fr_1fr_1fr] gap-4 items-start">
                         {/* BRAND */}
                         <div>
 
@@ -895,16 +894,12 @@ export default function GitNestHomepage() {
                                 A modern collaborative development platform inspired by GitHub and built for open source communities worldwide.
                             </p>
 
-                            {/* COPYRIGHT */}
-                            <p className="text-[15px] text-[#64748b] dark:text-zinc-400 leading-7">
-                                © 2026 GitNest. Built for open-source collaboration.
-                            </p>
                         </div>
 
                         {/* PLATFORM */}
                         <div>
 
-                            <h4 className="text-[22px] font-black tracking-[-0.04em] text-[#071138] dark:text-white mb-8">
+                            <h4 className="text-[22px] font-black tracking-[-0.04em] text-[#071138] dark:text-white mb-8 ">
                                 Platform
                             </h4>
 
@@ -968,18 +963,26 @@ export default function GitNestHomepage() {
 
                                     Terms & Conditions
                                 </Link>
+
+                                <Link
+                                    to="/contact"
+                                    className="group flex items-center gap-3 text-[16px] text-[#475569] hover:text-[#00b86b] transition-all duration-300"
+                                >
+                                    <div className="w-2 h-2 rounded-full bg-[#00c97b] group-hover:scale-150 transition-transform" />
+                                    Contact Us
+                                </Link>
                             </div>
                         </div>
 
                         {/* TECH STACK */}
-                        <div>
+                        <div >
 
-                            <h4 className="text-[22px] font-black tracking-[-0.04em] text-[#071138] dark:text-white mb-8">
+                            <h4 className="text-[22px] font-black tracking-[-0.04em] text-[#071138] dark:text-white mb-8 text-centre flex flex-col items-center">
                                 Tech Stack
                             </h4>
 
-                            <div className="flex flex-wrap gap-2">
-
+                            {/* <div className="flex flex-wrap gap-4 items-start"> */}
+                            <div className="grid grid-cols-2 gap-4 ">
                                 {[
                                     "React",
                                     "Tailwind",
@@ -992,10 +995,10 @@ export default function GitNestHomepage() {
                                 ].map((tech) => (
                                     <div
                                         key={tech}
-                                        className="px-5 py-3 rounded-2xl border border-[#e6ece9] bg-white shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 text-[15px] font-medium text-[#334155] flex items-center gap-3"
+                                        className="w-full px-4 py-3 rounded-2xl border border-[#e6ece9] bg-white shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 text-[15px] font-medium text-[#334155] flex items-center gap-3 justify-center"
                                     >
 
-                                        <div className="w-2 h-2 rounded-full bg-[#00c97b]" />
+                                        <div className="w-2 h-2 min-w-[8px] min-h-[8px] rounded-full bg-[#00c97b]" />
 
                                         {tech}
 
@@ -1003,10 +1006,16 @@ export default function GitNestHomepage() {
                                 ))}
                             </div>
 
-                        
+
                         </div>
                     </div>
+                    <div className="mt-10 pt-6 border-t border-[#dce7e3] dark:border-zinc-800 flex justify-center items-center">
+                        <p className="text-[15px] text-[#64748b] dark:text-zinc-400 ">
+                            © 2026 GitNest. Built for open-source collaboration.
+                        </p>
+                    </div>
                 </div>
+
             </footer>
         </div>
 

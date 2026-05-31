@@ -14,20 +14,21 @@ export const getUserProfile = asyncHandler(async (req, res, next) => {
   const cacheKey = `user:profile:${username}`;
   const redis = getRedisClient();
 
-  if (redis) {
+  if(redis) {
     const cached = await redis.get(cacheKey);
-    if(cached) {
+    if (cached) {
       return sendSuccess(res, 200, JSON.parse(cached), 'User profile fetched successfully');
     }
   }
+
   let user;
-  
-  if (mongoose.Types.ObjectId.isValid(username)) {
+
+  if(mongoose.Types.ObjectId.isValid(username)) {
     user = await User.findById(username).lean();
   }
 
-  if(!user){
-    user = await User.findOne({ username: username.toLowerCase()}).lean();
+  if(!user) {
+    user = await User.findOne({ username: username.toLowerCase() }).lean();
   }
 
   if (!user) {
@@ -37,15 +38,15 @@ export const getUserProfile = asyncHandler(async (req, res, next) => {
   const userObj = {
     ...user,
     _id: user._id.toString(),
-    createdAt: user.createdAt.toISOString(),
-    updatedAt: user.updatedAt.toISOString(),
+    createdAt: new Date(user.createdAt).toISOString(),
+    updatedAt: new Date(user.updatedAt).toISOString(),
   };
 
   if (redis) {
     await redis.set(cacheKey, JSON.stringify(userObj), 'EX', 60);
   }
 
-  sendSuccess(res, 200, user, 'User profile fetched successfully');
+  sendSuccess(res, 200, userObj, 'User profile fetched successfully');
 });
 
 // Follow a user with transaction-safe atomicity

@@ -262,22 +262,12 @@ We love contributions! GitNest is a **GSSoC 2026** project and welcomes develope
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for full details on the workflow, coding standards, and commit message format.
 
----
+---   
    
-## 📜 License
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](./LICENSE)
-
-This project is released under the **MIT License**.  
-Feel free to **use, modify, and distribute** it.
-   
-## 🌟 Support the Project
-
-**If you find this project helpful, please consider giving it a star!**  
-*It helps more developers discover this work.*
-
-
-<br />
-
-**Built with ❤️ by the Open Source Community**  
-🚀 *Collaborate • Contribute • Create*
+ <p align="center">
+  🌟 Create • Collaborate • Contribute 🌟
+   <br/>
+   Made with 💖 for the Open Source Community
+</p>
+ 

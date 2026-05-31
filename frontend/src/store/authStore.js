@@ -2,32 +2,15 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { loginUser, registerUser, getMe } from "../api/authApi";
 
-const extractUserData = (responseData) => {
-  const payload = responseData?.data ?? responseData;
-
-  if (!payload) {
-    return null;
-  }
-
-  const { _id, username, email, token } = payload;
-  return { _id, username, email, token };
-};
-
+// Fixed the error extraction to safely handle backend error messages without crashing
 const extractErrorMessage = (error) => {
+  if (error?.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+    return error.response.data.errors.map((err) => err.message).join(', ');
+  }
   if (error?.errors && Array.isArray(error.errors) && error.errors.length > 0) {
     return error.errors.map((err) => err.message).join(", ");
   }
-  return error?.message || "An error occurred";
-};
-
-const getFriendlyAuthError = (error, fallbackMessage) => {
-  const message = extractErrorMessage(error);
-
-  if (message && message !== "An error occurred") {
-    return message;
-  }
-
-  return fallbackMessage;
+  return error?.response?.data?.message || error?.message || 'An unexpected error occurred. Please try again.';
 };
 
 export const useAuthStore = create(
@@ -42,74 +25,62 @@ export const useAuthStore = create(
 
       // login
       login: async (email, password) => {
-        set({
-          loading: true,
-          error: null,
-        });
+        set({ loading: true, error: null });
 
         try {
-          const res = await loginUser({
-            email,
-            password,
-          });
+          const res = await loginUser({ email, password });
+
+          // extract user data no matter how the backend nests the response
+          const userData = res?.data?.user || res?.user || res?.data?.data || res?.data || res || {};
+          const tokenStr = res?.data?.token || res?.token || userData?.token || null;
 
           set({
             user: {
-              _id: res._id,
-              username: res.username,
-              email: res.email,
+              _id: userData?._id,
+              username: userData?.username,
+              email: userData?.email,
             },
-            token: res.token,
+            token: tokenStr,
             isAuthenticated: true,
             error: null,
           });
 
-          return res;
+          return userData;
         } catch (error) {
-          set({
-            error: extractErrorMessage(error),
-          });
-
+          set({ error: extractErrorMessage(error) });
           throw error;
         } finally {
-          set({
-            loading: false,
-          });
+          set({ loading: false });
         }
       },
 
       // register
-      register: async (userData) => {
-        set({
-          loading: true,
-          error: null,
-        });
+      register: async (userDataInput) => {
+        set({ loading: true, error: null });
 
         try {
-          const res = await registerUser(userData);
+          const res = await registerUser(userDataInput);
+
+          // extract user data no matter how the backend nests the response
+          const userData = res?.data?.user || res?.user || res?.data?.data || res?.data || res || {};
+          const tokenStr = res?.data?.token || res?.token || userData?.token || null;
 
           set({
             user: {
-              _id: res._id,
-              username: res.username,
-              email: res.email,
+              _id: userData?._id,
+              username: userData?.username,
+              email: userData?.email,
             },
-            token: res.token,
+            token: tokenStr,
             isAuthenticated: true,
             error: null,
           });
-
-          return res;
+          return userData;
         } catch (error) {
-          set({
-            error: extractErrorMessage(error),
-          });
-
+          set({ error: extractErrorMessage(error) });
           throw error;
         } finally {
-          set({
-            loading: false,
-          });
+          set({ loading: false });
         }
       },
 
@@ -126,23 +97,21 @@ export const useAuthStore = create(
 
       // clear error
       clearError: () => {
-        set({
-          error: null,
-        });
+        set({ error: null });
       },
 
       // check auth
       checkAuth: async () => {
-        set({
-          loading: true,
-          error: null,
-        });
+        set({ loading: true, error: null });
 
         try {
           const res = await getMe();
+          
+          // extract from getMe
+          const userData = res?.data?.user || res?.user || res?.data?.data || res?.data || res || {};
 
           set({
-            user: res,
+            user: userData,
             isAuthenticated: true,
           });
         } catch {
@@ -152,15 +121,12 @@ export const useAuthStore = create(
             isAuthenticated: false,
           });
         } finally {
-          set({
-            loading: false,
-          });
+          set({ loading: false });
         }
       },
     }),
     {
       name: "auth-storage",
-
       // persist only required state
       partialize: (state) => ({
         user: state.user,

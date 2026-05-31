@@ -1,67 +1,78 @@
-import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
 
 const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      required: [true, 'Please add a username'],
+      required: [true, "Please add a username"],
       unique: true,
       trim: true,
       lowercase: true,
     },
     email: {
       type: String,
-      required: [true, 'Please add an email'],
+      required: [true, "Please add an email"],
       unique: true,
       match: [
         /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
-        'Please add a valid email',
+        "Please add a valid email",
       ],
       lowercase: true,
     },
     password: {
       type: String,
-      required: [true, 'Please add a password'],
+      required: function () {
+        return !this.githubId;
+      },
       minlength: 6,
       select: false,
     },
+    githubId: {
+      type: String,
+      default: null,
+    },
+
+    avatar: {
+      type: String,
+      default: "",
+    },
     avatarUrl: {
       type: String,
-      default: '',
+      default: "",
     },
     bio: {
       type: String,
-      default: '',
+      default: "",
     },
     location: {
       type: String,
-      default: '',
+      default: "",
     },
     website: {
       type: String,
-      default: '',
+      default: "",
     },
     displayName: {
       type: String,
-      default: '',
+      default: "",
     },
     company: {
       type: String,
-      default: '',
+      default: "",
     },
     twitterHandle: {
       type: String,
-      default: '',
+      default: "",
     },
-    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
-    following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) {
     return next();
   }
   const salt = await bcrypt.genSalt(10);
@@ -72,7 +83,6 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-userSchema.index({ username: 'text', displayName: 'text', email: 'text', bio: 'text' });
+const User = mongoose.models.User || mongoose.model("User", userSchema);
 
-const User = mongoose.model('User', userSchema);
 export default User;

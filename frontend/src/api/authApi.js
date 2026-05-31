@@ -13,7 +13,7 @@ export const loginUser = async (userData) => {
 };
 
 export const getMe = async () => {
-  const response = await authApi.get("/me");
+  const response = await authApi.get('/me'); 
   return response.data.data;
 };
 

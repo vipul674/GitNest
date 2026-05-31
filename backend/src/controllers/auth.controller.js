@@ -3,23 +3,20 @@ import asyncHandler from "../utils/asyncHandler.js";
 import AppError from "../utils/AppError.js";
 import { sendSuccess } from "../utils/responseHandlers.js";
 import jwt from "jsonwebtoken";
-
-const generateToken = (id) => {
-  if (!process.env.JWT_SECRET) {
-    throw new Error("JWT_SECRET is not configured in environment");
-  }
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE || "30d",
-  });
-};
+import generateToken from "../utils/generateToken.js";
+// const generateToken = (id) => {
+//   if (!process.env.JWT_SECRET) {
+//     throw new Error('JWT_SECRET is not configured in environment');
+//   }
+//   return jwt.sign({ id }, process.env.JWT_SECRET, {
+//     expiresIn: process.env.JWT_EXPIRE || '30d',
+//   });
+// };
 
 export const register = asyncHandler(async (req, res, next) => {
   const { username, email, password } = req.body;
-  console.log("BODY:", req.body);
 
   const userExists = await User.findOne({ $or: [{ email }, { username }] });
-  console.log("FOUND USER:", userExists);
-
   if (userExists) {
     return next(new AppError("User already exists", 400));
   }
@@ -36,7 +33,7 @@ export const register = asyncHandler(async (req, res, next) => {
     res,
     201,
     {
-      _id: user._id,
+      _id: user._id.toString(),
       username: user.username,
       email: user.email,
       token,
@@ -60,7 +57,7 @@ export const login = asyncHandler(async (req, res, next) => {
     res,
     200,
     {
-      _id: user._id,
+      _id: user._id.toString(),
       username: user.username,
       email: user.email,
       token,
