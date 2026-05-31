@@ -25,31 +25,55 @@ const performSearch = async (query, type, skip, limit) => {
 
   if (type === SEARCH_TYPES.ALL || type === SEARCH_TYPES.USERS) {
     queries.push(
-      User.find(searchFilter)
-        .select(projections.users)
-        .lean()
-        .then(docs => ({ type: SEARCH_TYPES.USERS, items: docs, count: docs.length }))
+      Promise.all([
+        User.find(searchFilter)
+          .select(projections.users)
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+        User.countDocuments(searchFilter)
+      ]).then(([docs, count]) => ({
+        type: SEARCH_TYPES.USERS,
+        items: docs,
+        count
+      }))
     );
   }
 
   if (type === SEARCH_TYPES.ALL || type === SEARCH_TYPES.REPOSITORIES) {
     queries.push(
-      Repository.find(searchFilter)
-        .select(projections.repositories)
-        .populate('owner', 'username avatarUrl')
-        .lean()
-        .then(docs => ({ type: SEARCH_TYPES.REPOSITORIES, items: docs, count: docs.length }))
+      Promise.all([
+        Repository.find(searchFilter)
+          .select(projections.repositories)
+          .populate('owner', 'username avatarUrl')
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+        Repository.countDocuments(searchFilter)
+      ]).then(([docs, count]) => ({
+        type: SEARCH_TYPES.REPOSITORIES,
+        items: docs,
+        count
+      }))
     );
   }
 
   if (type === SEARCH_TYPES.ALL || type === SEARCH_TYPES.PULL_REQUESTS) {
     queries.push(
-      PullRequest.find(searchFilter)
-        .select(projections.pullRequests)
-        .populate('author', 'username avatarUrl')
-        .populate('repository', 'name owner')
-        .lean()
-        .then(docs => ({ type: SEARCH_TYPES.PULL_REQUESTS, items: docs, count: docs.length }))
+      Promise.all([
+        PullRequest.find(searchFilter)
+          .select(projections.pullRequests)
+          .populate('author', 'username avatarUrl')
+          .populate('repository', 'name owner')
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+        PullRequest.countDocuments(searchFilter)
+      ]).then(([docs, count]) => ({
+        type: SEARCH_TYPES.PULL_REQUESTS,
+        items: docs,
+        count
+      }))
     );
   }
 
