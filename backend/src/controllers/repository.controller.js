@@ -463,6 +463,42 @@ export const forkRepository = asyncHandler(async (req, res, next) => {
   }
 
   try {
+    const originalPath = path.resolve(
+      process.cwd(),
+      "repositories",
+      original.owner.toString(),
+      original.name,
+    );
+    const forkPath = path.resolve(
+      process.cwd(),
+      "repositories",
+      req.user.id,
+      forkName,
+    );
+
+    if (fs.existsSync(originalPath)) {
+      const git = simpleGit();
+      await git.clone(originalPath, forkPath);
+    } else {
+      fs.mkdirSync(forkPath, { recursive: true });
+      const git = simpleGit(forkPath);
+      await git.init();
+      const readmePath = path.join(forkPath, "README.md");
+      fs.writeFileSync(readmePath, generateReadme(forked, req.user.username));
+      const gitignorePath = path.join(forkPath, ".gitignore");
+      fs.writeFileSync(gitignorePath, generateGitignore(forked.language));
+    }
+  } catch (error) {
+    await forked.deleteOne();
+    const ownerId = original.owner.toString();
+    await Repository.updateOne(
+      { _id: original._id },
+      { $pull: { forks: forked._id } },
+    );
+    return next(new AppError("Failed to initialize forked repository storage", 500));
+  }
+
+  try {
     await logActivity({
       actor: req.user.id,
       type: ACTIVITY_TYPES.REPOSITORY_FORKED,

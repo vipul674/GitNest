@@ -212,8 +212,22 @@ export const mergePullRequest = asyncHandler(async (req, res, next) => {
   const pullRequest = await findPullRequest(req.params.id);
   if (pullRequest.status !== 'open') throw new AppError('Pull request is not open', 400);
 
+  const repository = await resolveMergeRepository(pullRequest);
+  const repoPath = path.resolve(
+    process.cwd(),
+    'repositories',
+    repository.owner.toString(),
+    repository.name,
+  );
+
+  if (!fs.existsSync(repoPath)) {
+    throw new AppError('Repository directory not found on disk', 500);
+  }
+
   const sagaId = req.headers['idempotency-key'] || uuidv4();
   const prId = pullRequest._id.toString();
+  const targetBranch = pullRequest.toBranch || pullRequest.targetBranch;
+  const sourceBranch = pullRequest.fromBranch || pullRequest.sourceBranch;
 
   const mergeSteps = [
     {
@@ -248,6 +262,39 @@ export const mergePullRequest = asyncHandler(async (req, res, next) => {
           { session }
         );
       }
+    },
+    {
+      name: 'gitCheckout',
+      execute: async (context) => {
+        const git = simpleGit(context.repoPath);
+        const status = await git.status();
+        context._previousBranch = status.current;
+        if (context._previousBranch !== context.targetBranch) {
+          await git.checkout(context.targetBranch);
+        }
+      },
+      compensate: async (context) => {
+        if (context._previousBranch) {
+          const git = simpleGit(context.repoPath);
+          await git.checkout(context._previousBranch);
+        }
+      }
+    },
+    {
+      name: 'gitMerge',
+      execute: async (context) => {
+        const git = simpleGit(context.repoPath);
+        await git.merge([context.sourceBranch]);
+      },
+      compensate: async (context) => {
+        const git = simpleGit(context.repoPath);
+        const status = await git.status();
+        if (status.conflicts && status.conflicts.length > 0) {
+          await git.merge(['--abort']);
+        } else {
+          await git.reset(['--merge', 'HEAD~1']);
+        }
+      }
     }
   ];
 
@@ -256,8 +303,19 @@ export const mergePullRequest = asyncHandler(async (req, res, next) => {
       sagaId,
       'MERGE_PULL_REQUEST',
       mergeSteps,
-      { prId }
+      { prId, repoPath, targetBranch, sourceBranch }
     );
+
+    const git = simpleGit(repoPath);
+    const remoteExists = await git.branch(['--list', sourceBranch]);
+
+    if (remoteExists && remoteExists.all?.includes(sourceBranch)) {
+      try {
+        await git.branch(['-d', sourceBranch]);
+      } catch {
+        // Ignore delete failure — branch may have unmerged work
+      }
+    }
 
     eventEmitter.emit('PULL_REQUEST_MERGED', {
       actorId: req.user._id.toString(),

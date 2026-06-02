@@ -1,6 +1,7 @@
 import { createApiClient } from './createApiClient.js';
+import { API_BASE_URL } from '../utils/apiConfig.js';
 
-const auditLogApi = createApiClient('/repos');
+const auditLogApi = createApiClient(`${API_BASE_URL}/repos`);
 
 export const fetchAuditLogs = async ({
   username,

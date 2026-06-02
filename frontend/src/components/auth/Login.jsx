@@ -3,6 +3,7 @@ import { useAuthStore } from "../../store/authStore";
 import { useToastStore } from "../../store/useToastStore";
 import { useNavigate, Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -74,14 +75,14 @@ const Login = () => {
     if (Object.keys(errors).length > 0) return;
 
     try {
-      const user = await login(formData.email.trim(), formData.password.trim());
+      await login(formData.email.trim(), formData.password.trim());
 
       addToast({
         message: "Signed in successfully!",
         type: "success",
       });
 
-      navigate(`/user/${user.username}`, { replace: true });
+      navigate("/");
     } catch (err) {
       if (err?.errors && Array.isArray(err.errors)) {
         const fieldErrors = {};
@@ -103,6 +104,22 @@ const Login = () => {
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[450px] bg-emerald-500/5 dark:bg-emerald-500/10 blur-[120px] rounded-full" />
         <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-cyan-500/5 blur-[120px] rounded-full" />
       </div>
+
+      <div className="absolute top-4 left-4 md:top-6 md:left-6 z-20">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl
+          border border-zinc-200 dark:border-white/10
+          bg-white/80 dark:bg-zinc-900/80
+          backdrop-blur-md
+          text-zinc-700 dark:text-zinc-200
+          hover:bg-zinc-100 dark:hover:bg-zinc-800
+          transition-all duration-300 shadow-md hover:shadow-lg"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </Link>
+      </div>
+
       {/* Container */}
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-10">
         <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-10 items-center animate-fadeIn">
@@ -120,9 +137,8 @@ const Login = () => {
             </h1>
 
             <p className="text-zinc-500 dark:text-zinc-400 text-lg leading-8 max-w-xl mb-10">
-              Collaborate with contributors, manage repositories, review pull
-              requests, and build modern open-source workflows in one unified
-              platform.
+              Collaborate with contributors, manage repositories, review pull requests,
+              and build modern open-source workflows in one unified platform.
             </p>
 
             <div className="flex flex-wrap gap-4">
@@ -155,8 +171,7 @@ const Login = () => {
             </h1>
 
             <p className="text-zinc-500 dark:text-zinc-400 text-sm leading-7 mb-6 px-4">
-              Collaborate with contributors and build modern open-source
-              workflows.
+              Collaborate with contributors and build modern open-source workflows.
             </p>
 
             <div className="flex flex-wrap justify-center gap-3">
@@ -212,11 +227,10 @@ const Login = () => {
                     aria-invalid={!!validationErrors.email}
                     aria-describedby="email-error"
                     placeholder="Enter your email"
-                    className={`w-full px-3 py-2 pr-11 rounded-md border outline-none transition focus:ring-2 focus:ring-indigo-500 ${
-                      validationErrors.email
-                        ? "border-red-500"
-                        : "border-zinc-200 dark:border-white/10"
-                    } bg-zinc-50 dark:bg-white/[0.04] text-gray-900 dark:text-white placeholder-gray-400`}
+                    className={`w-full px-3 py-2 pr-11 rounded-md border outline-none transition focus:ring-2 focus:ring-indigo-500 ${validationErrors.email
+                      ? "border-red-500"
+                      : "border-zinc-200 dark:border-white/10"
+                      } bg-zinc-50 dark:bg-white/[0.04] text-gray-900 dark:text-white placeholder-gray-400`}
                   />
 
                   {validationErrors.email && touched.email && (
@@ -242,11 +256,10 @@ const Login = () => {
                       aria-invalid={!!validationErrors.password}
                       aria-describedby="password-error"
                       placeholder="Enter your password"
-                      className={`w-full px-3 py-2 rounded-md border outline-none transition focus:ring-2 focus:ring-indigo-500 ${
-                        validationErrors.password
-                          ? "border-red-500"
-                          : "border-zinc-200 dark:border-white/10"
-                      } bg-zinc-50 dark:bg-white/[0.04] text-gray-900 dark:text-white placeholder-gray-400`}
+                      className={`w-full px-3 py-2 rounded-md border outline-none transition focus:ring-2 focus:ring-indigo-500 ${validationErrors.password
+                        ? "border-red-500"
+                        : "border-zinc-200 dark:border-white/10"
+                        } bg-zinc-50 dark:bg-white/[0.04] text-gray-900 dark:text-white placeholder-gray-400`}
                     />
 
                     <button
@@ -254,15 +267,16 @@ const Login = () => {
                       onClick={() => setShowPassword(!showPassword)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-white transition-colors"
                     >
-                      {showPassword ?  <Eye size={18} /> : <EyeOff size={18} />}
+                      {showPassword ? (
+                        <EyeOff size={18} />
+                      ) : (
+                        <Eye size={18} />
+                      )}
                     </button>
                   </div>
 
                   {validationErrors.password && touched.password && (
-                    <p
-                      id="password-error"
-                      className="text-xs text-red-500 mt-1"
-                    >
+                    <p id="password-error" className="text-xs text-red-500 mt-1">
                       {validationErrors.password}
                     </p>
                   )}
@@ -296,15 +310,6 @@ const Login = () => {
                   className="w-full py-3 rounded-2xl text-black font-semibold bg-emerald-400 hover:scale-[1.01] hover:bg-emerald-300 active:scale-[0.99] transition-all duration-300 shadow-xl shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? "Signing In..." : "Sign In"}
-                </button>
-                <button
-                  onClick={() => {
-                    window.location.href =
-                      "http://localhost:5000/api/v1/auth/github";
-                  }}
-                  className="w-full py-3 rounded-2xl text-black font-semibold bg-emerald-400 hover:scale-[1.01] hover:bg-emerald-300 active:scale-[0.99] transition-all duration-300 shadow-xl shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Sign in with GitHub
                 </button>
               </form>
 
