@@ -12,24 +12,24 @@ import {
     Code2,
     Wand2,
     Shield,
-    Menu, X
+    Menu, 
+    X,
+    Copy 
 } from "lucide-react";
 import { Link } from 'react-router-dom';
 import logo from "../assets/logo.png";
 import { motion, AnimatePresence } from "framer-motion";
 import "../App.css";
 
+
 function Counter({ target, duration = 1500 }) {
     const [count, setCount] = useState(0);
 
     useEffect(() => {
         let start = 0;
-
         const increment = target / (duration / 16);
-
         const timer = setInterval(() => {
             start += increment;
-
             if (start >= target) {
                 setCount(target);
                 clearInterval(timer);
@@ -37,7 +37,6 @@ function Counter({ target, duration = 1500 }) {
                 setCount(Math.floor(start));
             }
         }, 16);
-
         return () => clearInterval(timer);
     }, [target, duration]);
 
@@ -54,7 +53,6 @@ export default function GitNestHomepage() {
     });
     const { isDarkMode, toggleTheme } = useThemeStore();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
 
     const marqueeItems = [
         "MERN Stack",
@@ -89,6 +87,18 @@ export default function GitNestHomepage() {
                 ease: "easeOut",
             },
         },
+    };
+
+    const handleCopyUrl = async () => {
+        const repoUrl = `${window.location.origin}/Ankita15k/gitnest-core`;
+        
+        try {
+            await navigator.clipboard.writeText(repoUrl);
+            alert("Repository URL copied successfully!");
+        } catch (err) {
+            console.error("Failed to copy:", err);
+            alert("Failed to copy URL.");
+        }
     };
 
     return (
@@ -423,7 +433,6 @@ export default function GitNestHomepage() {
                                     GitNest Dashboard
                                 </div>
                             </div>
-
                             {/* CONTENT */}
                             <div className="p-4 space-y-6">
 
@@ -435,9 +444,19 @@ export default function GitNestHomepage() {
                                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 
                                         <div>
-                                            <h3 className="text-2xl font-black mb-1">
-                                                gitnest-core
-                                            </h3>
+                                            {/* COPY BUTTON SECTION */}
+                                            <div className="flex items-center gap-3 mb-1">
+                                                <h3 className="text-2xl font-black">
+                                                    gitnest-core
+                                                </h3>
+                                                <button
+                                                    onClick={handleCopyUrl}
+                                                    title="Copy Repository URL"
+                                                    className="p-1.5 text-zinc-500 hover:text-[#00dc82] bg-white/50 dark:bg-white/[0.05] hover:bg-white dark:hover:bg-white/[0.1] rounded-lg transition-colors flex items-center justify-center border border-zinc-200 dark:border-white/10 shadow-sm z-10"
+                                                >
+                                                    <Copy className="w-4 h-4" />
+                                                </button>
+                                            </div>
 
                                             <p className="text-zinc-500 leading-7">
                                                 GitHub-inspired repository management with pull requests, issues, branching, and AI-powered workflows.
@@ -450,7 +469,7 @@ export default function GitNestHomepage() {
                                     </div>
 
                                     {/* STATS */}
-                                    <div className="grid grid-cols-3 gap-2">
+                                    <div className="grid grid-cols-3 gap-2 mt-4">
 
                                         {[
                                             { value: "42", label: "Stars", icon: <Sparkles className="w-5 h-5" /> },
@@ -466,7 +485,7 @@ export default function GitNestHomepage() {
                                                 </div>
 
                                                 <div className="text-3xl font-black mb-2">
-                                                    <Counter target={Number(item.value)} />
+                                                    <Counter target={Number(item.value)} /> {/* <-- Restored the animated counter logic */}
                                                 </div>
 
                                                 <div className="text-zinc-900 text-sm">
@@ -622,7 +641,6 @@ export default function GitNestHomepage() {
                             <div className="w-2 h-2 rounded-full bg-[#00dc82]" />
 
                         </div>
-
                         <p className="text-[20px] leading-10 text-[#64748b] dark:text-zinc-400 max-w-3xl">
                             The UI system establishes a consistent design language so contributors can confidently build new pages, dashboards, workflows, and tools.
                         </p>
@@ -818,7 +836,6 @@ export default function GitNestHomepage() {
                             </linearGradient>
                         </defs>
                     </svg >
-
                     {/* RIGHT CURVE */}
                     < svg
                         className="absolute right-0 top-36 opacity-30"
@@ -1073,7 +1090,6 @@ export default function GitNestHomepage() {
                                 Tech Stack
                             </h4>
 
-                            {/* <div className="flex flex-wrap gap-4 items-start"> */}
                             <div className="grid grid-cols-2 gap-4 ">
                                 {[
                                     "React",

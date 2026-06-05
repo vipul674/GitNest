@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Star, GitFork, User, Calendar, GitPullRequest, GitMerge, XCircle } from 'lucide-react';
+import { Star, GitFork, User, Calendar, GitPullRequest, GitMerge, XCircle, Copy } from 'lucide-react';
 
 const statusConfig = {
   open: { icon: <GitPullRequest className="w-3 h-3" />, label: 'Open', classes: 'bg-emerald-400/10 text-emerald-400' },
@@ -32,24 +32,58 @@ const UserResult = ({ user, navigate }) => (
     </div>
   </div>
 );
+const copyRepoUrl = async (e, repo) => {
+  e.stopPropagation();
+
+  const repoUrl = `${window.location.origin}/repositories/${repo.owner.username}/${repo.name}`;
+
+  try {
+    await navigator.clipboard.writeText(repoUrl);
+    alert('Repository URL copied!');
+  } catch (error) {
+    console.error('Copy failed', error);
+  }
+};
 
 const RepositoryResult = ({ repo, navigate }) => (
   <div
     onClick={() => navigate(`/repositories/${repo.owner.username}/${repo.name}`)}
     className="p-4 border border-zinc-200 dark:border-zinc-700 rounded-lg hover:bg-zinc-50 dark:hover:bg-white/5 cursor-pointer transition-colors"
   >
-    <p className="font-semibold text-zinc-900 dark:text-white truncate">
-      {repo.owner.username}/{repo.name}
-    </p>
-    {repo.description && <p className="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2 mt-1">{repo.description}</p>}
+    <div className="flex justify-between items-start">
+      <p className="font-semibold text-zinc-900 dark:text-white truncate">
+        {repo.owner.username}/{repo.name}
+      </p>
+
+      <button
+        onClick={(e) => copyRepoUrl(e, repo)}
+        className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700"
+        title="Copy Repository URL"
+      >
+        <Copy className="w-4 h-4" />
+      </button>
+    </div>
+
+    {repo.description && (
+      <p className="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2 mt-1">
+        {repo.description}
+      </p>
+    )}
+
     <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-zinc-500">
-      {repo.language && <span className="px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded">{repo.language}</span>}
+      {repo.language && (
+        <span className="px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded">
+          {repo.language}
+        </span>
+      )}
+
       {repo.stars && repo.stars.length > 0 && (
         <span className="flex items-center gap-1">
           <Star className="w-3 h-3" />
           {repo.stars.length}
         </span>
       )}
+
       {repo.forks && repo.forks.length > 0 && (
         <span className="flex items-center gap-1">
           <GitFork className="w-3 h-3" />
