@@ -240,6 +240,11 @@ export const unfollowUser = asyncHandler(async (req, res, next) => {
 
 // Update current user's profile
 export const updateProfile = asyncHandler(async (req, res, next) => {
+  // Prevent Mass Assignment Privilege Escalation (Issue #427)
+  delete req.body.role;
+  delete req.body.isAdmin;
+  delete req.body.permissions;
+
   const { bio, location, website, avatarUrl, displayName, company, twitterHandle } = req.body;
 
   const user = await User.findById(req.user._id);

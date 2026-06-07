@@ -16,6 +16,11 @@ import eventEmitter from '../events/eventEmitter.js';
 // };
 
 export const register = asyncHandler(async (req, res, next) => {
+  // Prevent Mass Assignment Privilege Escalation (Issue #427)
+  delete req.body.role;
+  delete req.body.isAdmin;
+  delete req.body.permissions;
+
   const { username, email, password } = req.body;
 
   const userExists = await User.findOne({ $or: [{ email }, { username }] });
