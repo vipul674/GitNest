@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import SagaOrchestrator from '../services/saga/sagaOrchestrator.js';
 import eventEmitter from '../events/eventEmitter.js';
 import { evaluateMerge } from '../services/branchProtectionEvaluator.service.js';
+import { acquireRepoLock } from '../utils/repoMutex.js';
 
 const populatePullRequest = (query) =>
   query.populate('author', 'username avatarUrl').populate('repository', 'name owner defaultBranch').populate('comments.author', 'username avatarUrl').populate('reviews.author', 'username avatarUrl');
@@ -297,6 +298,11 @@ export const mergePullRequest = asyncHandler(async (req, res, next) => {
     {
       name: 'gitCheckout',
       execute: async (context) => {
+        // Acquire the per-repository mutex before touching the working tree.
+        // The lock is stored on the context so gitMerge and its compensate
+        // can release it after the full checkout+merge critical section ends.
+        context._repoLockRelease = await acquireRepoLock(context.repoPath);
+
         const git = simpleGit(context.repoPath);
         const status = await git.status();
         context._previousBranch = status.current;
@@ -305,17 +311,34 @@ export const mergePullRequest = asyncHandler(async (req, res, next) => {
         }
       },
       compensate: async (context) => {
-        if (context._previousBranch) {
-          const git = simpleGit(context.repoPath);
-          await git.checkout(context._previousBranch);
+        try {
+          if (context._previousBranch) {
+            const git = simpleGit(context.repoPath);
+            await git.checkout(context._previousBranch);
+          }
+        } finally {
+          // Always release the lock, even if the compensating checkout fails.
+          if (typeof context._repoLockRelease === 'function') {
+            context._repoLockRelease();
+            context._repoLockRelease = null;
+          }
         }
       }
     },
     {
       name: 'gitMerge',
       execute: async (context) => {
-        const git = simpleGit(context.repoPath);
-        await git.merge([context.sourceBranch]);
+        // Lock is already held from gitCheckout — no re-acquire needed.
+        try {
+          const git = simpleGit(context.repoPath);
+          await git.merge([context.sourceBranch]);
+        } finally {
+          // Critical section ends after merge — release the lock.
+          if (typeof context._repoLockRelease === 'function') {
+            context._repoLockRelease();
+            context._repoLockRelease = null;
+          }
+        }
       },
       compensate: async (context) => {
         const git = simpleGit(context.repoPath);
@@ -325,6 +348,7 @@ export const mergePullRequest = asyncHandler(async (req, res, next) => {
         } else {
           await git.reset(['--merge', 'HEAD~1']);
         }
+        // Lock was already released in gitMerge.execute's finally block.
       }
     }
   ];
