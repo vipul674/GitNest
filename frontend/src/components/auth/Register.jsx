@@ -504,10 +504,10 @@ const Register = () => {
                 >
                   {loading ? "Creating Account..." : "Register"}
                 </button>
-                <button
+                  <button
                   onClick={() => {
                     window.location.href =
-                      "http://localhost:5000/api/v1/auth/github";
+                      `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/v1/auth/github`;
                   }}
                   className="w-full py-3 rounded-2xl text-black font-semibold bg-emerald-400 hover:scale-[1.01] hover:bg-emerald-300 active:scale-[0.99] transition-all duration-300 shadow-xl shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >

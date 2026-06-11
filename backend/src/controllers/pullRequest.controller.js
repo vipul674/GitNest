@@ -48,47 +48,42 @@ const findPullRequest = async (id) => {
   return pullRequest;
 };
 
-/**
- * Resolves the set of repository IDs the calling user is allowed to see.
+/*
+ * Returns a MongoDB $match expression that enforces repository visibility
+ * at the aggregation level. Evaluated atomically alongside the PR query —
+ * eliminates the TOCTOU window that existed in the two-query snapshot approach.
  *
- * Unauthenticated callers may only see public repositories.
- * Authenticated callers may see public repositories plus any private
- * repository they own.
- *
- * When the caller has already narrowed the query to a specific repository,
- * we still enforce this check — if the resolved repository is private and the
- * caller is not the owner, we return an empty set so the query yields nothing
- * rather than leaking data.
- *
- * @param {object|null} caller  - req.user (may be undefined/null)
- * @param {object|null} pinnedRepo - a specific Repository document when the
- *   request includes a ?repository= filter, or null otherwise
- * @returns {mongoose.Types.ObjectId[]|null} array of allowed repo IDs, or
- *   null to indicate "no restriction needed" (caller owns the pinned repo)
+ * @param {object|null} caller - req.user (may be undefined/null)
+ * @param {mongoose.Types.ObjectId|null} pinnedRepoId - already-resolved repo _id, or null
+ * @returns {object} Mongoose filter fragment for the repository field
  */
-const resolveVisibleRepoIds = async (caller, pinnedRepo) => {
-  if (pinnedRepo) {
-    const isOwner = caller && pinnedRepo.owner.toString() === caller._id.toString();
-    if (pinnedRepo.visibility === 'private' && !isOwner) {
-      // Return an empty array — the pinned private repo is not accessible
-      return [];
+
+const buildVisibilityFilter = async (caller, pinnedRepoId) => {
+  if (pinnedRepoId) {
+    // Re-read visibility atomically at query time, not from a prior snapshot
+    const repo = await Repository.findById(pinnedRepoId).select('visibility owner');
+    if (!repo) return { repository: { $in: [] } }; // repo vanished — return nothing
+
+    const isOwner = caller && repo.owner.toString() === caller._id.toString();
+    if (repo.visibility === 'private' && !isOwner) {
+      return { repository: { $in: [] } }; // caller cannot access this private repo
     }
-    // Caller owns the private repo, or it's public — no additional restriction
-    return null;
+    return { repository: pinnedRepoId }; // caller is allowed
   }
 
-  // No pinned repo — build the full set of visible repo IDs
   if (!caller) {
-    const publicRepos = await Repository.find({ visibility: 'public' }).select('_id');
-    return publicRepos.map((r) => r._id);
+    // Unauthenticated: only public repos
+    const publicRepoIds = await Repository.find({ visibility: 'public' }).select('_id');
+    return { repository: { $in: publicRepoIds.map((r) => r._id) } };
   }
 
-  const [publicRepos, ownedPrivateRepos] = await Promise.all([
-    Repository.find({ visibility: 'public' }).select('_id'),
-    Repository.find({ visibility: 'private', owner: caller._id }).select('_id'),
-  ]);
-  return [...publicRepos, ...ownedPrivateRepos].map((r) => r._id);
+  // Authenticated: public repos + caller's own private repos — single round-trip
+  const visibleRepos = await Repository.find({
+    $or: [{ visibility: 'public' }, { visibility: 'private', owner: caller._id }],
+  }).select('_id');
+  return { repository: { $in: visibleRepos.map((r) => r._id) } };
 };
+
 const resolveMergeRepository = async (pullRequest) => {
   const repositoryId = pullRequest.repository?._id || pullRequest.repository;
   const repository = await Repository.findById(repositoryId).select('name owner defaultBranch');
@@ -106,38 +101,41 @@ export const listPullRequests = asyncHandler(async (req, res) => {
   const { status = 'all', repository, search } = req.query;
   const filter = {};
   if (status !== 'all') filter.status = status;
+  if (search) filter.$text = { $search: search };
 
-  let pinnedRepo = null;
+  let pinnedRepoId = null;
   if (repository) {
     const { username } = req.query;
     if (!mongoose.Types.ObjectId.isValid(repository) && !username) {
       throw new AppError('Repository name requires owner username to disambiguate', 400);
     }
-    pinnedRepo = await resolveRepository(repository, null, username);
-    filter.repository = pinnedRepo._id;
+    const pinnedRepo = await resolveRepository(repository, null, username);
+    pinnedRepoId = pinnedRepo._id;
   }
 
-  if (search) filter.$text = { $search: search };
+  // Build a visibility filter that is evaluated atomically at query time,
+  // eliminating the TOCTOU race between resolveVisibleRepoIds and PullRequest.find.
+  const visibilityFilter = await buildVisibilityFilter(req.user || null, pinnedRepoId);
 
-  // Restrict results to repositories the caller is permitted to read
-  const visibleRepoIds = await resolveVisibleRepoIds(req.user || null, pinnedRepo);
-  if (visibleRepoIds !== null) {
-    if (visibleRepoIds.length === 0) {
-      // Caller has no access to any visible repository
-      return sendSuccess(res, 200, {
+  // Short-circuit when no repos are accessible (e.g. non-owner querying a private repo)
+  if (
+    visibilityFilter.repository &&
+    visibilityFilter.repository.$in &&
+    visibilityFilter.repository.$in.length === 0
+  ) {
+    return sendSuccess(
+      res,
+      200,
+      {
         pullRequests: [],
         counts: { open: 0, closed: 0, merged: 0 },
         pagination: buildPaginationMeta(page, limit, 0),
-      }, 'Pull requests fetched successfully');
-    }
-    // Intersect with any pinned-repo filter already set
-    filter.repository = filter.repository
-      ? filter.repository
-      : { $in: visibleRepoIds };
-    if (!repository) {
-      filter.repository = { $in: visibleRepoIds };
-    }
+      },
+      'Pull requests fetched successfully'
+    );
   }
+
+  Object.assign(filter, visibilityFilter);
 
   const [pullRequests, totalCount, open, closed, merged] = await Promise.all([
     populatePullRequest(PullRequest.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit)),
@@ -146,11 +144,17 @@ export const listPullRequests = asyncHandler(async (req, res) => {
     PullRequest.countDocuments({ ...filter, status: 'closed' }),
     PullRequest.countDocuments({ ...filter, status: 'merged' }),
   ]);
-  sendSuccess(res, 200, {
-    pullRequests: pullRequests.map(serializePullRequest),
-    counts: { open, closed, merged },
-    pagination: buildPaginationMeta(page, limit, totalCount),
-  }, 'Pull requests fetched successfully');
+
+  sendSuccess(
+    res,
+    200,
+    {
+      pullRequests: pullRequests.map(serializePullRequest),
+      counts: { open, closed, merged },
+      pagination: buildPaginationMeta(page, limit, totalCount),
+    },
+    'Pull requests fetched successfully'
+  );
 });
 
 export const getPullRequest = asyncHandler(async (req, res) => {

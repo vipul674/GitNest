@@ -40,6 +40,14 @@ jest.unstable_mockModule('../src/models/SagaState.model.js', () => ({
       if (!stored) return null;
       return makeSagaDoc(stored);
     }),
+    findOneAndUpdate = jest.fn(async ({ sagaId }, update) => {
+      const stored = mockStates.get(sagaId);
+      if (stored && update.$set) {
+        Object.assign(stored, update.$set);
+        mockStates.set(sagaId, stored);
+      }
+      return stored ? makeSagaDoc(stored) : null;
+    }),
     create: jest.fn(async (data) => {
       const doc = makeSagaDoc(data);
       mockStates.set(doc.sagaId, { ...doc });
@@ -87,6 +95,14 @@ describe('Saga Orchestrator Framework', () => {
       const stored = mockStates.get(sagaId);
       if (!stored) return null;
       return makeSagaDoc(stored);
+    });
+    SagaState.findOneAndUpdate.mockImplementation(async ({ sagaId }, update) => {
+      const stored = mockStates.get(sagaId);
+      if (stored && update.$set) {
+        Object.assign(stored, update.$set);
+        mockStates.set(sagaId, stored);
+      }
+      return stored ? makeSagaDoc(stored) : null;
     });
     SagaState.create.mockImplementation(async (data) => {
       const doc = makeSagaDoc(data);
@@ -287,5 +303,132 @@ describe('Saga Orchestrator Framework', () => {
     const state = await SagaState.findOne({ sagaId });
     expect(state.status).toBe('completed');
     expect(state.completedSteps).toEqual(['step1', 'step2']);
+  });
+
+  // ── 6. Stale processing → reclaimed and retried ─────────────────────────────
+  test('reclaims a stale processing saga and completes the retry', async () => {
+    const sagaId = 'saga-stale-reclaim';
+    const log = [];
+
+    const steps = [
+      {
+        name: 'step1',
+        execute: async () => { log.push('step1'); },
+        compensate: async () => {},
+      },
+      {
+        name: 'step2',
+        execute: async () => { log.push('step2'); },
+        compensate: async () => {},
+      },
+    ];
+
+    // Simulate a crashed saga: status=processing, step1 done, lastHeartbeatAt is ancient
+    const staleTimestamp = new Date(Date.now() - 60_000); // 60 s ago — well past any threshold
+    await SagaState.create({
+      sagaId,
+      type: 'TEST',
+      status: 'processing',
+      completedSteps: ['step1'],
+      failedStep: null,
+      metadata: {},
+      lastHeartbeatAt: staleTimestamp,
+    });
+
+    // Retry with staleThresholdMs = 30 000 ms — 60 s old heartbeat is stale
+    const result = await SagaOrchestrator.executeSaga(
+      sagaId, 'TEST', steps, {}, { maxRetries: 1, staleThresholdMs: 30_000, heartbeatIntervalMs: 999_999 }
+    );
+
+    // step1 was already in completedSteps → skipped; only step2 re-runs
+    expect(log).toEqual(['step2']);
+
+    const state = await SagaState.findOne({ sagaId });
+    expect(state.status).toBe('completed');
+    expect(state.completedSteps).toEqual(['step1', 'step2']);
+    // result should carry original context
+    expect(result).toBeDefined();
+  });
+
+  // ── 7. Live processing saga still blocked ───────────────────────────────────
+  test('still throws for a processing saga with a recent heartbeat', async () => {
+    const sagaId = 'saga-live-block';
+
+    // Simulate a live saga: lastHeartbeatAt is just now
+    await SagaState.create({
+      sagaId,
+      type: 'TEST',
+      status: 'processing',
+      completedSteps: [],
+      failedStep: null,
+      metadata: {},
+      lastHeartbeatAt: new Date(), // fresh
+    });
+
+    const steps = [
+      {
+        name: 'step1',
+        execute: async () => {},
+        compensate: async () => {},
+      },
+    ];
+
+    // staleThresholdMs = 30 000 ms; heartbeat is < 1 s old → not stale → must throw
+    await expect(
+      SagaOrchestrator.executeSaga(
+        sagaId, 'TEST', steps, {}, { staleThresholdMs: 30_000, heartbeatIntervalMs: 999_999 }
+      )
+    ).rejects.toThrow(/currently in progress/);
+
+    // Verify the state was NOT mutated
+    const state = await SagaState.findOne({ sagaId });
+    expect(state.status).toBe('processing');
+  });
+
+  // ── 8. Mid-crash retry: same idempotency key completes after simulated crash ─
+  test('client retry after simulated mid-flight crash completes the merge saga', async () => {
+    const sagaId = 'saga-crash-retry';
+    const log = [];
+
+    const steps = [
+      {
+        name: 'gitMerge',
+        execute: async (ctx) => { log.push('gitMerge'); ctx.merged = true; },
+        compensate: async () => { log.push('undoMerge'); },
+      },
+      {
+        name: 'updatePR',
+        execute: async (ctx) => { log.push('updatePR'); ctx.prClosed = true; },
+        compensate: async () => {},
+      },
+    ];
+
+    // First attempt: process crashes after gitMerge completes but before updatePR —
+    // seed the DB as the crash left it.
+    const staleTimestamp = new Date(Date.now() - 45_000);
+    await SagaState.create({
+      sagaId,
+      type: 'MERGE_PULL_REQUEST',
+      status: 'processing',
+      completedSteps: ['gitMerge'],
+      failedStep: null,
+      metadata: { prId: 'pr-abc' },
+      lastHeartbeatAt: staleTimestamp,
+    });
+
+    // Client retries with the same Idempotency-Key after server restart.
+    const result = await SagaOrchestrator.executeSaga(
+      sagaId, 'MERGE_PULL_REQUEST', steps, { prId: 'pr-abc' },
+      { maxRetries: 1, staleThresholdMs: 30_000, heartbeatIntervalMs: 999_999 }
+    );
+
+    // gitMerge already in completedSteps → skipped; only updatePR runs
+    expect(log).toEqual(['updatePR']);
+    expect(result.merged).toBe(true);
+    expect(result.prClosed).toBe(true);
+
+    const state = await SagaState.findOne({ sagaId });
+    expect(state.status).toBe('completed');
+    expect(state.completedSteps).toEqual(['gitMerge', 'updatePR']);
   });
 });
