@@ -278,30 +278,56 @@ export const deleteRepository = asyncHandler(async (req, res, next) => {
   }
 
   const repoId = repository._id;
-
-  // 1. Remove filesystem directory
   const repoPath = path.resolve(process.cwd(), "repositories", req.user.id, repository.name);
-  fs.rmSync(repoPath, { recursive: true, force: true });
 
-  // 2. Nullify forkedFrom on repos that forked from this one
-  await Repository.updateMany(
-    { forkedFrom: repoId },
-    { $set: { forkedFrom: null } },
-  );
+  // Attempt filesystem removal first; log but do not block DB cleanup on failure
+  let fsRemoved = false;
+  try {
+    await fs.promises.rm(repoPath, { recursive: true, force: true });
+    fsRemoved = true;
+  } catch (fsErr) {
+    console.error(`[REPO_DELETE] fs.rm failed for ${repoPath}: ${fsErr.message}. Continuing with DB cleanup.`);
+  }
 
-  // 3. Remove this repo ID from forks arrays of other repos
-  await Repository.updateMany(
-    { forks: repoId },
-    { $pull: { forks: repoId } },
-  );
+  // Use a MongoDB transaction for atomic DB cleanup
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
 
-  // 4. Delete orphaned Activity records referencing this repository
-  await Activity.deleteMany({ repository: repoId });
+    // 1. Delete the repository document first
+    await repository.deleteOne({ session });
 
-  // 5. Delete PullRequest documents referencing this repository
-  await PullRequest.deleteMany({ repository: repoId });
+    // 2. Nullify forkedFrom on repos that forked from this one
+    await Repository.updateMany(
+      { forkedFrom: repoId },
+      { $set: { forkedFrom: null } },
+      { session },
+    );
 
-  await repository.deleteOne();
+    // 3. Remove this repo ID from forks arrays of other repos
+    await Repository.updateMany(
+      { forks: repoId },
+      { $pull: { forks: repoId } },
+      { session },
+    );
+
+    // 4. Delete orphaned Activity records referencing this repository
+    await Activity.deleteMany({ repository: repoId }, { session });
+
+    // 5. Delete PullRequest documents referencing this repository
+    await PullRequest.deleteMany({ repository: repoId }, { session });
+
+    await session.commitTransaction();
+  } catch (dbErr) {
+    await session.abortTransaction();
+    // If DB cleanup fails but filesystem was removed, log the inconsistency
+    if (fsRemoved) {
+      console.error(`[REPO_DELETE] DB cleanup failed after fs removal for repo ${repoId}: ${dbErr.message}. Orphaned filesystem directory.`);
+    }
+    return next(new AppError("Failed to delete repository due to database error", 500));
+  } finally {
+    session.endSession();
+  }
 
   eventEmitter.emit('REPO_DELETED', {
     actorId: req.user._id,
