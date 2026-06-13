@@ -26,3 +26,13 @@ const startServer = async () => {
 };
 
 startServer();
+
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION! Shutting down...', err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (err) => {
+  console.error('UNHANDLED REJECTION! Shutting down...', err);
+  process.exit(1);
+});
