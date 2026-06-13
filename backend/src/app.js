@@ -24,6 +24,7 @@ import gitRoutes from './routes/git.routes.js';
 import searchRoutes from './routes/search.routes.js';
 import codeIntelligenceRoutes from './routes/codeIntelligence.routes.js';
 import cloneRoutes from './routes/clone.routes.js';
+import archiveRoutes from './routes/archive.routes.js';
 import errorHandler from './middleware/errorHandler.js';
 import AppError from './utils/AppError.js';
 import swaggerSpec from './config/swagger.js';
@@ -132,6 +133,7 @@ const createApp = () => {
   app.use('/api/v1/repositories', codeIntelligenceRoutes);
   app.use('/api/v1/repositories', architectureRoutes);
   app.use('/api/v1/repositories', repositoryHealthRoutes);
+  app.use('/api/v1/repositories', archiveRoutes);
   app.use('/api/v1/search', searchRoutes);
   app.use('/api/v1/auth', githubAuthRoutes);
   app.use('/api/v1/repositories', cloneRoutes);
