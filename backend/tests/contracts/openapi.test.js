@@ -20,5 +20,7 @@ describe('OpenAPI contract', () => {
     expect(swaggerSpec.paths['/api/v1/repositories/{username}/{reponame}/architecture'].get).toBeDefined();
     expect(swaggerSpec.paths['/api/v1/repositories/{username}/{reponame}/architecture/hotspots'].get).toBeDefined();
     expect(swaggerSpec.paths['/api/v1/repositories/{username}/{reponame}/architecture/risk'].get).toBeDefined();
+    expect(swaggerSpec.paths['/api/v1/repositories/{username}/{reponame}/compliance'].get).toBeDefined();
+    expect(swaggerSpec.paths['/api/v1/repositories/{username}/{reponame}/compliance/report'].get).toBeDefined();
   });
 });

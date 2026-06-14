@@ -8,6 +8,7 @@ import { extractSymbolsFromFiles } from './symbolExtractor.js';
 import { DependencyGraphBuilder, extractDependencyEdgesFromFiles } from './dependencyGraphBuilder.service.js';
 import { ArchitectureMapping } from './architectureMapping.service.js';
 import { HealthScoring } from './healthScoring.service.js';
+import { PolicyEvaluation } from './policyEvaluation.service.js';
 
 export const REPOSITORY_INDEX_TYPE = 'REPOSITORY_INDEX';
 
@@ -102,6 +103,23 @@ export const buildRepositoryIndexSteps = () => [
         healthScore: health.overallScore,
         healthCategory: health.healthCategory,
         healthGeneratedAt: health.generatedAt,
+      };
+    },
+  },
+  {
+    name: 'generate_repository_compliance',
+    execute: async (context, session) => {
+      const { repositoryId, repositoryName } = context;
+      const compliance = await PolicyEvaluation.evaluateAndPersist({
+        repositoryId,
+        repositoryName,
+        session,
+      });
+
+      return {
+        complianceStatus: compliance.complianceStatus,
+        complianceScore: compliance.complianceScore,
+        complianceGeneratedAt: compliance.generatedAt,
       };
     },
   },
