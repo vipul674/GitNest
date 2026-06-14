@@ -8,6 +8,7 @@ import { extractSymbolsFromFiles } from './symbolExtractor.js';
 import { DependencyGraphBuilder, extractDependencyEdgesFromFiles } from './dependencyGraphBuilder.service.js';
 import { ArchitectureMapping } from './architectureMapping.service.js';
 import { HealthScoring } from './healthScoring.service.js';
+import { PolicyEvaluation } from './policyEvaluation.service.js';
 
 export const REPOSITORY_INDEX_TYPE = 'REPOSITORY_INDEX';
 
@@ -28,6 +29,8 @@ export const buildRepositoryIndexSteps = () => [
 
       return { fileCount: files.length, symbols, dependencyEdges };
     },
+    // crawl_and_extract is read-only; nothing to undo
+    compensate: async () => {},
   },
   {
     name: 'replace_indexed_symbols',
@@ -35,6 +38,18 @@ export const buildRepositoryIndexSteps = () => [
       const { repositoryId, repositoryName, owner, symbols } = context;
       const indexedAt = new Date();
 
+      // Snapshot the current symbols BEFORE any destructive write.
+      // The compensate function uses this snapshot to restore the prior state
+      // if insertMany fails partway through (see issue #480).
+      // We use lean() to get plain objects that can be re-inserted directly.
+      const previousSymbols = await IndexedSymbol.find({ repositoryId }, null, {
+        session,
+        lean: true,
+      });
+      // Strip Mongoose-managed fields so the documents can be cleanly re-inserted.
+      context.previousSymbols = previousSymbols.map(({ _id, __v, createdAt, updatedAt, ...rest }) => rest);
+
+      // Delete all existing symbols for this repository
       await IndexedSymbol.deleteMany({ repositoryId }, { session });
 
       const documents = symbols.map((symbol) => ({
@@ -57,7 +72,17 @@ export const buildRepositoryIndexSteps = () => [
       return { symbolCount: documents.length, indexedAt };
     },
     compensate: async (context, session) => {
-      await IndexedSymbol.deleteMany({ repositoryId: context.repositoryId }, { session });
+      const { repositoryId, previousSymbols } = context;
+
+      // Remove any partially-inserted symbols from the failed execute attempt
+      await IndexedSymbol.deleteMany({ repositoryId }, { session });
+
+      // Restore the pre-run snapshot so the repository is left exactly as it
+      // was before the failed index run. If previousSymbols is empty or
+      // undefined (e.g. the repository had no prior index), this is a no-op.
+      if (previousSymbols && previousSymbols.length > 0) {
+        await IndexedSymbol.insertMany(previousSymbols, { session });
+      }
     },
   },
   {
@@ -105,6 +130,23 @@ export const buildRepositoryIndexSteps = () => [
       };
     },
   },
+  {
+    name: 'generate_repository_compliance',
+    execute: async (context, session) => {
+      const { repositoryId, repositoryName } = context;
+      const compliance = await PolicyEvaluation.evaluateAndPersist({
+        repositoryId,
+        repositoryName,
+        session,
+      });
+
+      return {
+        complianceStatus: compliance.complianceStatus,
+        complianceScore: compliance.complianceScore,
+        complianceGeneratedAt: compliance.generatedAt,
+      };
+    },
+  },
 ];
 
 export const triggerRepositoryIndex = async ({ userId, repositoryId, repositoryName, owner }) => {
@@ -120,6 +162,7 @@ export const triggerRepositoryIndex = async ({ userId, repositoryId, repositoryN
     dependencyEdgeCount: 0,
     dependencyEdges: [],
     symbols: [],
+    previousSymbols: [],
   };
 
   const promise = sagaQueue.enqueue(
