@@ -370,6 +370,24 @@ const repositoryHealthRecommendationsData = {
   required: ['recommendations'],
 };
 
+const repositoryComplianceHistoryData = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    history: { type: 'array', items: sharedSchemas.repositoryCompliance },
+  },
+  required: ['history'],
+};
+
+const repositoryComplianceViolationsData = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    violations: { type: 'array', items: sharedSchemas.complianceCheck },
+  },
+  required: ['violations'],
+};
+
 export const contracts = {
   auth: {
     register: { tags: ['Auth'], summary: 'Register a user', request: { body: registerBody }, responses: { 201: sharedSchemas.successEnvelope(sharedSchemas.authUser) } },
@@ -465,6 +483,12 @@ export const contracts = {
     history: { tags: ['Repository Health'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope(repositoryHealthHistoryData) } },
     breakdown: { tags: ['Repository Health'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope(sharedSchemas.repositoryHealthBreakdown) } },
     recommendations: { tags: ['Repository Health'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope(repositoryHealthRecommendationsData) } },
+  },
+  repositoryCompliance: {
+    get: { tags: ['Repository Compliance'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope(sharedSchemas.repositoryCompliance) } },
+    history: { tags: ['Repository Compliance'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope(repositoryComplianceHistoryData) } },
+    violations: { tags: ['Repository Compliance'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope(repositoryComplianceViolationsData) } },
+    report: { tags: ['Repository Compliance'], security: [{ bearerAuth: [] }], request: { params: sharedSchemas.repoParam }, responses: { 200: sharedSchemas.successEnvelope(sharedSchemas.repositoryComplianceReport) } },
   },
 };
 
