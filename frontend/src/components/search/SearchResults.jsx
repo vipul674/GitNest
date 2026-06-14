@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { Star, GitFork, User, Calendar, GitPullRequest, GitMerge, XCircle, Copy } from 'lucide-react';
+import SearchResultSkeleton from '../skeletons/SearchResultSkeleton';
 
 const statusConfig = {
   open: { icon: <GitPullRequest className="w-3 h-3" />, label: 'Open', classes: 'bg-emerald-400/10 text-emerald-400' },
@@ -130,7 +131,15 @@ const PullRequestResult = ({ pr, navigate }) => {
 export default function SearchResults({ results, isLoading }) {
   const navigate = useNavigate();
 
-  if (isLoading) return null;
+  if (isLoading) {
+  return (
+    <div className="space-y-2">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <SearchResultSkeleton key={i} />
+      ))}
+    </div>
+  );
+}
 
   if (!results || (Object.values(results.results).every(arr => arr.length === 0))) {
     return (
