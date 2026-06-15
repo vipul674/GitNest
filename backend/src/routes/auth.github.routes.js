@@ -112,14 +112,9 @@ router.post("/exchange", exchangeLimiter, async (req, res) => {
   let jwt = null;
 
   if (redis) {
-    const stored = await redis.get(`${CODE_PREFIX}${code}`);
-    if (stored) {
-      // Constant-time comparison on the code lookup
-      const lookupKey = `${CODE_PREFIX}${code}`;
-      const raw = await redis.getdel(lookupKey);
-      if (raw) {
-        jwt = raw;
-      }
+    const raw = await redis.getdel(`${CODE_PREFIX}${code}`);
+    if (raw) {
+      jwt = raw;
     }
   } else {
     const fallbackStore = global.__oauthFallbackStore;
@@ -135,7 +130,7 @@ router.post("/exchange", exchangeLimiter, async (req, res) => {
   }
 
   if (!jwt) {
-    logFailedExchange(clientIp, code.substring(0, 8), jwt === null ? "not_found_or_expired" : "deleted");
+    logFailedExchange(clientIp, code.substring(0, 8), "not_found_or_expired");
     return res.status(401).json({ message: "Invalid or expired exchange code" });
   }
 
