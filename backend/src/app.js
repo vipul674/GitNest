@@ -22,6 +22,7 @@ import commitHistoryRoutes from './routes/commitHistory.routes.js';
 import fileBrowserRoutes from './routes/fileBrowser.routes.js';
 import branchRoutes from './routes/branch.routes.js';
 import gitRoutes from './routes/git.routes.js';
+import mergeRoutes from './routes/merge.routes.js';
 import searchRoutes from './routes/search.routes.js';
 import codeIntelligenceRoutes from './routes/codeIntelligence.routes.js';
 import cloneRoutes from './routes/clone.routes.js';
@@ -132,6 +133,7 @@ const createApp = () => {
   app.use('/api/v1/repositories', fileBrowserRoutes);
   app.use('/api/v1/repositories', branchRoutes);
   app.use('/api/v1/repos', gitRoutes);
+  app.use('/api/v1/repositories', mergeRoutes);
   app.use('/api/v1/repositories', codeIntelligenceRoutes);
   app.use('/api/v1/repositories', architectureRoutes);
   app.use('/api/v1/repositories', repositoryHealthRoutes);
