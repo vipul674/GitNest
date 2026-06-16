@@ -408,12 +408,14 @@ export const mergePullRequest = asyncHandler(async (req, res, next) => {
         }
       },
       compensate: async (context) => {
+        const mergeHeadPath = path.join(context.repoPath, '.git', 'MERGE_HEAD');
+        const mergeInProgress = fs.existsSync(mergeHeadPath);
+
         const git = simpleGit(context.repoPath);
-        const status = await git.status();
-        if (status.conflicts && status.conflicts.length > 0) {
+        if (mergeInProgress) {
           await git.merge(['--abort']);
         } else {
-          await git.reset(['--merge', 'HEAD~1']);
+          await git.checkout(['--', '.']);
         }
         // Lock was already released in gitMerge.execute's finally block.
       }
