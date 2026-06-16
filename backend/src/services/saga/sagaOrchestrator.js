@@ -93,7 +93,7 @@ export class SagaOrchestrator {
 
     try {
       if (useTransaction) {
-        session.startTransaction();
+        await session.startTransaction();
       }
 
       // Begin execution pipeline

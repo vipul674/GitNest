@@ -291,20 +291,6 @@ export const mergePullRequest = asyncHandler(async (req, res, next) => {
     throw new AppError('Repository directory not found on disk', 500);
   }
 
-  // Evaluate branch protection rules before allowing the merge
-  const evalResult = await evaluateMerge({
-    repository,
-    pullRequest,
-    userId: req.user._id,
-  });
-
-  if (!evalResult.allowed) {
-    throw new AppError(
-      `Merge blocked by branch protection rules: ${evalResult.reasons.join(' ')}`,
-      403
-    );
-  }
-
   const sagaId = req.headers['idempotency-key'] || uuidv4();
   const prId = pullRequest._id.toString();
   const actorId = req.user._id.toString();
@@ -327,14 +313,19 @@ export const mergePullRequest = asyncHandler(async (req, res, next) => {
     {
       name: 'checkBranchProtection',
       execute: async (context) => {
-        const pr = await populatePullRequest(PullRequest.findById(context.prId));
+        const [pr, repository] = await Promise.all([
+          populatePullRequest(PullRequest.findById(context.prId)),
+          Repository.findById(context.repository._id).select('name owner defaultBranch collaborators'),
+        ]);
         if (!pr) throw new AppError('Pull request not found', 404);
-        const { allowed, isOwnerOverride, reasons } = await evaluateMerge({
-          repository: context.repository,
+        if (!repository) throw new AppError('Repository not found', 404);
+
+        const { allowed, reasons } = await evaluateMerge({
+          repository,
           pullRequest: pr,
           userId: context.actorId,
         });
-        if (!allowed && !isOwnerOverride) {
+        if (!allowed) {
           throw new AppError(reasons.join(' '), 403);
         }
       },
@@ -408,12 +399,14 @@ export const mergePullRequest = asyncHandler(async (req, res, next) => {
         }
       },
       compensate: async (context) => {
+        const mergeHeadPath = path.join(context.repoPath, '.git', 'MERGE_HEAD');
+        const mergeInProgress = fs.existsSync(mergeHeadPath);
+
         const git = simpleGit(context.repoPath);
-        const status = await git.status();
-        if (status.conflicts && status.conflicts.length > 0) {
+        if (mergeInProgress) {
           await git.merge(['--abort']);
         } else {
-          await git.reset(['--merge', 'HEAD~1']);
+          await git.checkout(['--', '.']);
         }
         // Lock was already released in gitMerge.execute's finally block.
       }
