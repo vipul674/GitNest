@@ -179,32 +179,30 @@ const Register = () => {
         >
           <ArrowLeft className="w-4 h-4" />
         </Link>
-      </div>   
+      </div>
 
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-16 md:py-10">
         <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-10 items-center animate-fadeIn">
           {/* LEFT */}
-          <div>
+          <div className="lg:pr-8">
             {/* BADGE */}
-            <div className="inline-flex items-center gap-3 px-5 py-0 rounded-full border border-[#00dc82]/10 bg-white/60 dark:bg-white/[0.03] backdrop-blur-xl text-[#1edb8c] shadow-lg mb-10">
+            <div className="inline-flex items-center gap-3 px-5 py-0 rounded-full border border-[#00dc82]/10 bg-white/60 dark:bg-white/[0.03] backdrop-blur-xl text-[#1edb8c] shadow-lg mb-8">
               <Sparkles className="w-4 h-4" />
 
               <span className="text-sm font-medium p-3">• Join GitNest</span>
             </div>
 
             {/* TITLE */}
-            <h1 className="text-[50px]  leading-[1]  font-black">
-              <span className="block">Start Collaboratig</span>
-
+            <h1 className="text-[42px] md:text-[48px] lg:text-[52px] leading-[1.05] font-black tracking-tighter">
+              <span className="block">Start Collaborating</span>
               <span className="block">with</span>
-
               <span className="block text-transparent bg-clip-text bg-gradient-to-r from-[#00dc82] via-[#36e4da] to-[#4fd1ff] drop-shadow-[0_10px_30px_rgba(0,220,130,0.25)]">
                 GitNest
               </span>
             </h1>
 
             {/* DESCRIPTION */}
-            <p className="text-[16px] leading-7 text-zinc-950 dark:text-zinc-400 max-w-2xl mb-5 mt-2">
+            <p className="text-[16px] leading-7 text-zinc-950 dark:text-zinc-400 max-w-2xl mb-6 mt-3">
               GitNest is a full-featured GitHub-inspired platform built with the
               MERN stack. Create repositories, browse code, manage issues,
               review pull requests, and collaborate — all in one open-source
@@ -212,9 +210,9 @@ const Register = () => {
             </p>
 
             {/* TRACKS */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="grid grid-cols-2 md:flex md:flex-wrap items-start gap-x-8 gap-y-6 mb-8">
               <div className="flex items-center gap-4">
-                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
+                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg flex-shrink-0">
                   <Wand2 className="w-5 h-5 text-[#00dc82]" />
                 </div>
 
@@ -223,8 +221,8 @@ const Register = () => {
                   Workflows
                 </span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
+              <div className="flex items-center gap-4">
+                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg flex-shrink-0">
                   <Code2 className="w-5 h-5 text-[#00dc82]" />
                 </div>
 
@@ -233,8 +231,8 @@ const Register = () => {
                 </span>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
+              <div className="flex items-center gap-4">
+                <div className="w-8 h-8 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg flex-shrink-0">
                   <Users className="w-5 h-5 text-[#00dc82]" />
                 </div>
 
@@ -245,8 +243,8 @@ const Register = () => {
                 </span>
               </div>
 
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg">
+              <div className="flex items-center gap-4">
+                <div className="w-9 h-9 rounded-2xl bg-white dark:bg-white/[0.03] border border-zinc-200 dark:border-white/10 flex items-center justify-center shadow-lg flex-shrink-0">
                   <Shield className="w-5 h-5 text-[#00dc82]" />
                 </div>
 
@@ -256,7 +254,7 @@ const Register = () => {
               </div>
             </div>
 
-            <div className="mt-10 flex items-center gap-4 rounded-[28px] border border-white/50 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-2xl px-5 py-4 shadow-xl max-w-md">
+            <div className="flex items-center gap-4 rounded-[28px] border border-white/50 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-2xl px-5 py-4 shadow-xl max-w-xs">
               <div className="flex -space-x-3">
                 {[1, 2, 3, 4].map((i) => (
                   <div
@@ -504,12 +502,13 @@ const Register = () => {
                 >
                   {loading ? "Creating Account..." : "Register"}
                 </button>
-                  <button
+
+                <button
                   onClick={() => {
-                    window.location.href =
-                      `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/v1/auth/github`;
+                    window.location.href = `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/v1/auth/github`;
                   }}
-                  className="w-full py-3 rounded-2xl text-black font-semibold bg-emerald-400 hover:scale-[1.01] hover:bg-emerald-300 active:scale-[0.99] transition-all duration-300 shadow-xl shadow-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                  type="button"
+                  className="w-full py-3 rounded-2xl font-semibold border border-zinc-200 dark:border-white/10 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-900 dark:text-white transition-all duration-300 shadow-sm"
                 >
                   Continue with GitHub
                 </button>
