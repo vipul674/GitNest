@@ -81,6 +81,7 @@ export default function GitNestHomepage() {
   const navLinks = [
     { name: "Home", href: "#home" },
     { name: "Features", href: "#features" },
+    { name: "Documentation", href: "/docs" },
     { name: "FAQ", href: "#faq" },
     { name: "Contributors", href: "#contributors" },
   ];
@@ -211,8 +212,14 @@ export default function GitNestHomepage() {
             {navLinks.map((item) => (
               <a
                 key={item.name}
-                href={item.href}
-                onClick={() => setActiveLink(item.href)}
+                href={item.href.startsWith("#") ? item.href : undefined}
+                onClick={() => {
+                  setActiveLink(item.href);
+                  if (!item.href.startsWith("#")) {
+                    // For full page links like /docs
+                    window.location.href = item.href;
+                  }
+                }}
                 className={`relative text-[15px] font-medium transition-all duration-300 ${
                   activeLink === item.href
                     ? "text-zinc-950 dark:text-white"
@@ -303,8 +310,13 @@ export default function GitNestHomepage() {
                 {navLinks.map((item) => (
                   <a
                     key={item.name}
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
+                    href={item.href.startsWith("#") ? item.href : undefined}
+                    onClick={() => {
+                      setMobileMenuOpen(false);
+                      if (!item.href.startsWith("#")) {
+                        window.location.href = item.href;
+                      }
+                    }}
                     className="text-lg font-medium text-zinc-800 dark:text-white"
                   >
                     {item.name}
@@ -377,10 +389,10 @@ export default function GitNestHomepage() {
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
-                to="/docs#architecture"
+                to="/docs"
                 className="px-8 py-3 rounded-3xl border border-zinc-200 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl text-zinc-700 dark:text-zinc-200 hover:shadow-xl transition-all flex items-center gap-3"
               >
-                <Layers3 className="w-5 h-5" /> View Architecture
+                <Layers3 className="w-5 h-5" /> Read Documentation
               </Link>
             </div>
 
@@ -430,7 +442,7 @@ export default function GitNestHomepage() {
                 </div>
                 <div className="leading-tight">
                   <p className="text-base xl:text-lg font-semibold text-zinc-800 dark:text-white">
-                    Secure &
+                    Secure &amp;
                   </p>
                   <p className="text-base xl:text-lg font-semibold text-zinc-800 dark:text-white">
                     Reliable
@@ -1020,7 +1032,7 @@ export default function GitNestHomepage() {
                   className="group flex items-center gap-3 text-[16px] text-[#475569] hover:text-[#00b86b] transition-all duration-300"
                 >
                   <div className="w-2 h-2 rounded-full bg-[#00c97b] group-hover:scale-150 transition-transform" />
-                  Terms & Conditions
+                  Terms &amp; Conditions
                 </Link>
                 <Link
                   to="/contact"
